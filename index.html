@@ -643,7 +643,14 @@ header.site .wrap{padding-left:max(16px,env(safe-area-inset-left));padding-right
 </style>
 </head>
 <body>
-<button type="button" class="sr skip6" data-act="x6-skip">Vai al contenuto</button><div class="demo-bar" role="note">Versione di prova: pagamenti, firme e notifiche sono simulati e i dati restano solo in questo browser.</div>
+<div id="nf-forms" hidden aria-hidden="true">
+<form name="richiesta" method="POST" data-netlify="true" netlify-honeypot="bot-field" enctype="multipart/form-data"><input name="bot-field"><input name="pratica"><input name="ambito"><input name="tipo"><input name="data_sinistro"><input name="comune"><textarea name="descrizione"></textarea><input name="coinvolti"><input name="danni"><input name="bene"><input name="polizza"><input name="esito"><input name="offerta"><input name="nome"><input name="email"><input name="telefono"><input name="ricontatto"><input name="file_allegati"><input type="file" name="foto1"><input type="file" name="foto2"><input type="file" name="foto3"><input type="file" name="foto4"></form>
+<form name="contatto" method="POST" data-netlify="true" netlify-honeypot="bot-field"><input name="bot-field"><input name="nome"><input name="email"><input name="telefono"><input name="motivo"><input name="ricontatto"><textarea name="messaggio"></textarea></form>
+<form name="ordine" method="POST" data-netlify="true" netlify-honeypot="bot-field"><input name="bot-field"><input name="pratica"><input name="nome"><input name="email"><input name="telefono"><input name="servizi"><input name="totale"><input name="tipo"><input name="compagnia"><input name="offerta"><textarea name="descrizione"></textarea><input name="nota"></form>
+</div>
+<script>(function(){var n=document.getElementById("nf-forms");if(n)n.parentNode.removeChild(n);})();</script>
+
+<button type="button" class="sr skip6" data-act="x6-skip">Vai al contenuto</button><div class="demo-bar" role="note">Versione di prova: pagamenti e firme sono simulati. Le richieste e i messaggi arrivano davvero allo Studio.</div>
 <div id="app"></div>
 <div id="toast" role="status" aria-live="polite"></div>
 <div id="modal-root"></div>
@@ -1284,7 +1291,7 @@ function addUploads(input){
   for (var i = 0; i < fl.length; i++) {
     var f = fl[i], url = '';
     try { if (/^image\//.test(f.type) && window.URL && URL.createObjectURL) url = URL.createObjectURL(f); } catch(e){}
-    PREV.push({name:f.name || ('foto-'+(PREV.length+1)+'.jpg'), url:url});
+    PREV.push({name:f.name || ('foto-'+(PREV.length+1)+'.jpg'), url:url, file:f});
     F.files.push(f.name || ('foto-'+PREV.length+'.jpg'));
   }
   try { input.value = ''; } catch(e){}
@@ -1838,7 +1845,7 @@ function addUploads(input){
     var f = fl[i], url = '';
     try { if (/^image\//.test(f.type) && window.URL && URL.createObjectURL) url = URL.createObjectURL(f); } catch(e){}
     var nm = f.name || ('foto-'+(F.files.length+1)+'.jpg');
-    PREV.push({name:nm, url:url}); F.files.push(nm); nAdd++;
+    PREV.push({name:nm, url:url, file:f}); F.files.push(nm); nAdd++;
   }
   try { input.value = ''; } catch(e){}
   var t = document.getElementById('up-thumbs'); if (t) t.innerHTML = upThumbs();
@@ -2062,7 +2069,7 @@ document.addEventListener('click', function(e){
         if (!PF.nome || !/^\S+@\S+\.\S+$/.test(PF.email)) { er.textContent = 'Inserisci nome ed email validi.'; return; }
         if (!PF.privacy) { er.textContent = 'Conferma di aver letto l’informativa privacy.'; return; }
         PF.id = 'PF-' + Math.floor(1000 + Math.random()*9000);
-        S.leads.unshift({id:PF.id, amb:PF.amb, tipo:AMB[PF.amb].tipo, data:PF.data, comune:PF.comune, descr:PF.descr, coinvolti:PF.coinvolti, danni:PF.danni, polizza:PF.polizza, esito:PF.esito, offerta:PF.offerta, nome:PF.nome, email:PF.email, tel:PF.tel, files:F.files.slice(), at:oggi(), stato:'nuova', b2b:PF.amb==='b2b'});
+        S.leads.unshift({id:PF.id, amb:PF.amb, tipo:AMB[PF.amb].tipo, data:PF.data, comune:PF.comune, descr:PF.descr, coinvolti:PF.coinvolti, danni:PF.danni, polizza:PF.polizza, esito:PF.esito, offerta:PF.offerta, nome:PF.nome, email:PF.email, tel:PF.tel, files:F.files.slice(), at:oggi(), stato:'nuova', b2b:PF.amb==='b2b'}); nfLead(S.leads[0]);
         logEvt(PF.email, 'Nuova richiesta di prefattibilità '+PF.id); save();
         PF.step = 8; render(false); return;
       }
@@ -2149,7 +2156,7 @@ document.addEventListener('submit', function(e){
     var err = $('#ct-err');
     if (!f.elements.nome.value.trim() || !/^\S+@\S+\.\S+$/.test(f.elements.email.value.trim()) || f.elements.msg.value.trim().length < 5) { err.textContent = 'Compila nome, email e messaggio.'; return; }
     if (!f.elements.ok.checked) { err.textContent = 'Conferma di aver letto l’informativa privacy.'; return; }
-    S.contatti.unshift({nome:f.elements.nome.value.trim(), email:f.elements.email.value.trim(), msg:f.elements.msg.value.trim(), at:oggi()}); logEvt(f.elements.email.value.trim(), 'Messaggio dal modulo contatti'); save(); f.reset(); err.textContent = ''; toast('Messaggio inviato allo Studio'); return;
+    S.contatti.unshift({nome:f.elements.nome.value.trim(), email:f.elements.email.value.trim(), msg:f.elements.msg.value.trim(), at:oggi()}); nfSend('contatto', {nome:S.contatti[0].nome, email:S.contatti[0].email, messaggio:S.contatti[0].msg}); logEvt(f.elements.email.value.trim(), 'Messaggio dal modulo contatti'); save(); f.reset(); err.textContent = ''; toast('Messaggio inviato allo Studio'); return;
   }
   if (kind === 'x-voci') { saveVoci(); save(); render(true); return; }
 }, true);
@@ -2381,7 +2388,7 @@ function pfSubmit(){
   PF.danni = PF.zone.concat(PF.dan).join(', ');
   PF.polizza = PF.comp || 'da verificare';
   PF.id = 'PF-' + Math.floor(1000 + Math.random()*9000);
-  S.leads.unshift({id:PF.id, amb:PF.amb, tipo:AMB[PF.amb].tipo, data:PF.data, comune:PF.comune, descr:PF.descr, coinvolti:PF.coinvolti, danni:PF.danni, polizza:PF.polizza, esito:PF.esito, offerta:PF.offerta, nome:PF.nome, email:PF.email, tel:PF.tel, via:PF.via, fascia:PF.fascia, files:F.files.slice(), at:oggi(), stato:'nuova', b2b:PF.amb==='b2b'});
+  S.leads.unshift({id:PF.id, amb:PF.amb, tipo:AMB[PF.amb].tipo, data:PF.data, comune:PF.comune, descr:PF.descr, coinvolti:PF.coinvolti, danni:PF.danni, polizza:PF.polizza, esito:PF.esito, offerta:PF.offerta, nome:PF.nome, email:PF.email, tel:PF.tel, via:PF.via, fascia:PF.fascia, files:F.files.slice(), at:oggi(), stato:'nuova', b2b:PF.amb==='b2b'}); nfLead(S.leads[0]);
   S.lastContact = {nome:PF.nome, email:PF.email, tel:PF.tel};
   logEvt(PF.email, 'Nuova richiesta di prefattibilità '+PF.id);
   S.pfDraft = null; PF.step = 10; save(); render(false);
@@ -2476,7 +2483,7 @@ document.addEventListener('click', function(e){
       if (!CT.nome) { ce.textContent = 'Scrivi il tuo nome.'; return; }
       if (CT.via === 'Email' ? !/^\S+@\S+\.\S+$/.test(CT.email) : CT.tel.replace(/\D/g,'').length < 6) { ce.textContent = CT.via === 'Email' ? 'Scrivi un’email valida.' : 'Scrivi un numero di telefono valido.'; return; }
       if (!CT.ok) { ce.textContent = 'Spunta la casella dell’informativa privacy.'; return; }
-      S.contatti.unshift({nome:CT.nome, email:CT.email||CT.tel, msg:CT.motivo+' · ricontatto via '+CT.via+(CT.fascia?' ('+CT.fascia+')':'')+(CT.msg?' · '+CT.msg:''), at:oggi()});
+      S.contatti.unshift({nome:CT.nome, email:CT.email||CT.tel, msg:CT.motivo+' · ricontatto via '+CT.via+(CT.fascia?' ('+CT.fascia+')':'')+(CT.msg?' · '+CT.msg:''), at:oggi()}); nfSend('contatto', {nome:CT.nome, email:CT.email||'', telefono:CT.tel||'', motivo:CT.motivo, ricontatto:CT.via+(CT.fascia?' ('+CT.fascia+')':''), messaggio:CT.msg||''});
       S.lastContact = {nome:CT.nome, email:CT.email||(S.lastContact&&S.lastContact.email)||'', tel:CT.tel||(S.lastContact&&S.lastContact.tel)||''};
       logEvt(CT.nome, 'Richiesta di contatto: '+CT.motivo); save(); CT.sent = true; render(false); break;
   }
@@ -2489,7 +2496,7 @@ document.addEventListener('change', function(e){
   if (t.hasAttribute && t.hasAttribute('data-pfshot') && t.files && t.files.length) {
     var f = t.files[0], n = t.getAttribute('data-pfshot'), nm = f.name || (n + '.jpg');
     PF.shots[n] = nm; F.files = F.files.filter(function(x){ return x !== nm; }).concat([nm]);
-    try { if (/^image\//.test(f.type)) PREV.push({name:nm, url:URL.createObjectURL(f)}); } catch(er){}
+    try { if (/^image\//.test(f.type)) PREV = PREV.filter(function(x){ return x.name !== nm; }); PREV.push({name:nm, url:URL.createObjectURL(f), file:f}); } catch(er){ PREV.push({name:nm, url:'', file:f}); }
     draftSave(); toast('Foto aggiunta'); render(true);
   }
   if (t.name === 'data' && t.closest && t.closest('#pf-form')) { PF.data = t.value; draftSave(); }
@@ -2800,7 +2807,9 @@ function creaPratica(servizio, files){
     messaggi:[{da:'studio', t:'Abbiamo ricevuto la sua pratica. Un tecnico la prende in carico a breve.', at:oggi()}],
     notifiche:[{t:'Pagamento confermato: pratica ricevuta', at:oggi()}],
     pagamenti: items.map(function(id){ return {d:SERV(id).n, v:SERV(id).p, at:oggi()}; }), partner:null};
-  S.pratiche.unshift(p); S.cart = []; save(); return p;
+  S.pratiche.unshift(p); S.cart = []; save();
+  nfSend('ordine', {pratica:p.id, nome:p.nome||'', email:p.email||'', telefono:p.tel||'', servizi:p.pagamenti.map(function(x){ return x.d+' '+x.v+' €'; }).join(', '), totale:tot+' €', tipo:p.tipo||'', compagnia:p.compagnia||'', offerta:p.offerta||'', descrizione:p.descr||'', nota:'Pagamento simulato (versione di prova)'});
+  return p;
 }
 
 document.addEventListener('click', function(e){
@@ -2824,7 +2833,7 @@ document.addEventListener('click', function(e){
         var err = $('#f-err');
         if (!F.nome || !/^\S+@\S+\.\S+$/.test(F.email)) { err.textContent = 'Inserisci nome ed email validi.'; err.style.color = '#B91C1C'; return; }
         if (!F.consenso) { err.textContent = 'Serve il consenso al trattamento dei dati per valutare il sinistro.'; err.style.color = '#B91C1C'; return; }
-        S.leads.unshift({tipo:F.tipo, data:F.data, bene:F.bene, descr:F.descr, compagnia:F.compagnia, offerta:F.offerta, nome:F.nome, email:F.email, tel:F.tel, files:F.files.slice(), at:oggi()}); save();
+        S.leads.unshift({tipo:F.tipo, data:F.data, bene:F.bene, descr:F.descr, compagnia:F.compagnia, offerta:F.offerta, nome:F.nome, email:F.email, tel:F.tel, files:F.files.slice(), at:oggi()}); nfLead(S.leads[0]); save();
       }
       F.step = Math.min(5, F.step + 1); render(false); break;
     case 'f-buy': S.cart = [a.getAttribute('data-s')]; save(); location.hash = 'checkout'; break;
@@ -2970,6 +2979,37 @@ document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && $('#
 
 function showCookie(){
   $('#cookie-root').innerHTML = '<div class="cookie" role="dialog" aria-label="Preferenze cookie"><strong>Cookie</strong><p class="muted" style="font-size:14px;line-height:1.5">Usiamo cookie tecnici necessari. Con il tuo consenso useremmo anche cookie di misurazione e marketing (GA4, Meta Pixel). <a href="#cookie-policy">Cookie policy</a></p><div class="row g8"><button type="button" class="btn btn-sm btn-o" data-act="cookie-no">Solo necessari</button><button type="button" class="btn btn-sm btn-k" data-act="cookie-yes">Accetta tutti</button></div></div>';
+}
+
+/* ---------- v9: invio reale delle richieste allo Studio (Netlify Forms) ---------- */
+function nfOn(){ return /^https?:$/.test(location.protocol) && !/claude|localhost|127\.0\.0\.1/.test(location.hostname); }
+function nfShrink(file){
+  return new Promise(function(res){
+    if (!file || !/^image\//.test(file.type) || !window.createImageBitmap) return res(file && file.size < 3e6 ? file : null);
+    createImageBitmap(file).then(function(bm){
+      var k = Math.min(1, 1600 / Math.max(bm.width, bm.height)), c = document.createElement('canvas');
+      c.width = Math.round(bm.width*k); c.height = Math.round(bm.height*k);
+      c.getContext('2d').drawImage(bm, 0, 0, c.width, c.height);
+      c.toBlob(function(b){ res(b ? new File([b], (file.name||'foto').replace(/\.[^.]+$/,'')+'.jpg', {type:'image/jpeg'}) : null); }, 'image/jpeg', 0.78);
+    }).catch(function(){ res(file.size < 3e6 ? file : null); });
+  });
+}
+function nfSend(form, data, files){
+  if (!nfOn()) return Promise.resolve(false);
+  var fd = new FormData(); fd.append('form-name', form);
+  Object.keys(data).forEach(function(k){ var v = data[k]; fd.append(k, v == null ? '' : String(v)); });
+  var list = (files || []).slice(0, 4);
+  return Promise.all(list.map(nfShrink)).then(function(fs){
+    var tot = 0;
+    fs.forEach(function(f, i){ if (f && tot + f.size < 7.5e6) { tot += f.size; fd.append('foto'+(i+1), f, f.name); } });
+    return fetch('/', {method:'POST', body:fd});
+  }).then(function(r){ if (!r.ok) throw new Error(r.status); return true; })
+    .catch(function(){ toast('Invio allo Studio non riuscito. Riprova o scrivi a '+STUDIO.email); return false; });
+}
+function nfLead(l){
+  if (!l) return;
+  var fs = PREV.map(function(x){ return x.file; }).filter(Boolean);
+  nfSend('richiesta', {pratica:l.id||'', ambito:l.amb||'', tipo:l.tipo||'', data_sinistro:l.data||'', comune:l.comune||'', descrizione:l.descr||'', coinvolti:l.coinvolti||'', danni:l.danni||'', bene:l.bene||'', polizza:l.polizza||l.compagnia||'', esito:l.esito||'', offerta:l.offerta||'', nome:l.nome||'', email:l.email||'', telefono:l.tel||'', ricontatto:(l.via||'')+(l.fascia?' ('+l.fascia+')':''), file_allegati:(l.files||[]).join(', ')}, fs);
 }
 render(false);
 if (!S.cookie) showCookie();
