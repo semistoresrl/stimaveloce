@@ -30,7 +30,7 @@ STRUMENTI = [
        row(f("vet", "Deprezzamento per vetustà", "0", "Solo se la polizza indennizza a stato d'uso", unit="%"), f("fr", "Franchigia", "0", "", unit="€")),
   formula="<p><code>Imponibile = Σ (quantità × prezzo unitario)</code><br><code>Costi accessori = Imponibile × %accessori</code><br><code>Totale lavori = (Imponibile + accessori) × (1 + IVA)</code><br><code>Dopo vetustà = Totale lavori × (1 − %vetustà)</code><br><code>Indennizzo orientativo = max(0, Dopo vetustà − franchigia)</code></p>",
   spiegazione="<p>Il <b>totale lavori</b> è il costo stimato del ripristino. L'<b>importo indennizzabile</b> tiene conto di come la polizza tratta il danno: deprezzamento se l'indennizzo è a stato d'uso e franchigia. Scoperti, limiti di indennizzo e regola proporzionale si calcolano con gli strumenti dedicati.</p><p>L'IVA è indennizzabile quando resta effettivamente a carico dell'assicurato; in genere non lo è per chi può detrarla.</p>",
-  avvertenze="I prezzi unitari li inserisci tu: usa preventivi dettagliati o i prezzari regionali. Il risultato è orientativo e non sostituisce un computo metrico redatto da un tecnico né considera tutte le clausole della polizza.",
+  avvertenze="I prezzi proposti sono quelli del Prezzario regionale dei Lavori Pubblici della Campania 2026 (IVA esclusa, comprensivi di spese generali e utile d'impresa); puoi sostituirli con quelli del tuo preventivo. Il risultato è orientativo e non sostituisce un computo metrico redatto da un tecnico né considera tutte le clausole della polizza.",
   fonti=[CC]),
  dict(slug="franchigia-scoperto", icon="percent", nome="Calcolatore franchigia e scoperto",
   h1="Calcolatore franchigia e scoperto", breve="Applica franchigia, scoperto con minimo e massimo e limite di indennizzo.",
@@ -103,7 +103,7 @@ STRUMENTI = [
        sel("iva", "IVA", [("10","10%"),("22","22%"),("0","Esente o non applicabile")]),
   formula="<p><code>Lavori = Σ (quantità × prezzo unitario)</code><br><code>Oneri sicurezza, spese tecniche e imprevisti = Lavori × rispettive %</code><br><code>Imponibile = Lavori + oneri + spese + imprevisti</code><br><code>Totale = Imponibile × (1 + IVA)</code></p>",
   spiegazione="<p>Un preventivo verificabile indica per ogni voce unità di misura, quantità e prezzo unitario. Le percentuali di oneri e spese tecniche variano da caso a caso: inseriscile solo se effettivamente previste.</p>",
-  avvertenze="L'aliquota IVA dipende dal tipo di intervento e di immobile: verifica con l'impresa o il consulente fiscale. I prezzi unitari sono quelli che inserisci tu.",
+  avvertenze="L'aliquota IVA dipende dal tipo di intervento e di immobile: verifica con l'impresa o il consulente fiscale. I prezzi proposti vengono dal Prezzario regionale della Campania 2026 e sono già comprensivi di spese generali e utile d'impresa: non aggiungere altre percentuali per le stesse voci.",
   fonti=[]),
 ]
 
@@ -158,4 +158,29 @@ STRUMENTI += [
   spiegazione="<p>Le quantità di lavorazione (m², m, m³) sono quelle da moltiplicare per i prezzi unitari. I litri di pittura e il materiale con sfrido servono a chi esegue i lavori e non si sommano ai prezzi unitari, che di norma comprendono già il materiale.</p>",
   avvertenze="Le rese reali dipendono dal prodotto e dal supporto; lo sfrido cambia con il formato delle piastrelle e la forma della stanza.",
   fonti=[]),
+]
+
+PRZ_SRC = ("Prezzario regionale dei Lavori Pubblici della Campania 2026 – DGR n. 14 del 29/01/2026, BURC n. 6 del 02/02/2026", "https://burc.regione.campania.it/")
+_PRZ_FORM = LINES + row3(f("sic", "Oneri per la sicurezza", "3", unit="%"), f("tec", "Spese tecniche", "0", unit="%"), f("imp", "Imprevisti", "0", unit="%")) + sel("iva", "IVA", [("10","10%"),("22","22%"),("0","Esente o non applicabile")])
+_PRZ_FORMULA = "<p><code>Lavori = \u03a3 (quantit\u00e0 \u00d7 prezzo unitario del prezzario)</code><br><code>Imponibile = lavori + oneri per la sicurezza + spese tecniche + imprevisti</code><br><code>Totale = imponibile \u00d7 (1 + IVA)</code></p><p>I prezzi unitari sono quelli del <b>Prezzario regionale dei Lavori Pubblici della Campania, anno 2026</b> (DGR n. 14 del 29 gennaio 2026): al netto dell'IVA e gi\u00e0 comprensivi del 17% di spese generali e del 10% di utile d'impresa. Ogni voce mostra il suo codice ufficiale.</p>"
+_PRZ_SPIEG = "<p>Il risultato \u00e8 una stima a prezzi pubblici di riferimento, utile per confrontare un preventivo o un'offerta. I prezzi di mercato possono essere diversi: se cambi un prezzo, la voce viene segnata come \u00abprezzo inserito\u00bb.</p>"
+_PRZ_AVV = "I prezzi pubblici sono un riferimento per opere pubbliche: per interventi piccoli, urgenti o in condizioni particolari i costi reali possono essere maggiori. Le quantit\u00e0 vanno misurate sul posto. La stima non sostituisce un computo metrico firmato da un tecnico."
+
+def _prz(slug, icon, nome, h1, breve, desc, intro, cats):
+    return dict(slug=slug, icon=icon, nome=nome, h1=h1, breve=breve, title=h1 + " con prezzario Campania 2026 | StimaVeloce", desc=desc, intro=intro,
+                res_label="Totale stimato", form=_PRZ_FORM, formula=_PRZ_FORMULA, spiegazione=_PRZ_SPIEG, avvertenze=_PRZ_AVV, cats=cats, fonti=[PRZ_SRC])
+
+STRUMENTI += [
+ _prz("stime-edili", "hammer", "Stime edili", "Stima lavori edili", "Intonaci, rasature, tinteggiature, pavimenti a prezzi ufficiali.",
+      "Stima i lavori edili di ripristino (intonaci, rasature, tinteggiature, massetti, pavimenti, controsoffitti) con i prezzi del Prezzario Campania 2026.",
+      "Scegli le lavorazioni e inserisci le quantit\u00e0: i prezzi unitari arrivano dal prezzario regionale ufficiale, con il codice di ogni voce.", "edili"),
+ _prz("stime-idrauliche", "droplets", "Stime idrauliche", "Stima lavori idraulici", "Allacci e rimozioni di sanitari, con le opere edili collegate.",
+      "Stima lavori idraulici dopo un danno da acqua: rimozione e allaccio di apparecchi sanitari e opere edili collegate, con prezzi del Prezzario Campania 2026.",
+      "Per la ricerca e la riparazione del guasto il prezzario non ha voci specifiche: inseriscile come voce libera con il prezzo dell'idraulico.", "idraulici,edili"),
+ _prz("stime-elettriche", "plug", "Stime elettriche", "Stima lavori elettrici", "Punti luce e prese con le opere murarie comprese.",
+      "Stima il ripristino dell'impianto elettrico per punti luce e punti presa, opere murarie comprese, con i prezzi del Prezzario Campania 2026.",
+      "Le voci del prezzario per punti luce e prese comprendono conduttori, scatole, frutto, placca e apertura delle tracce.", "elettrici,edili"),
+ _prz("stime-ripristino", "wrench", "Stime di ripristino", "Stima completa di ripristino", "Esempio pronto: soffitto, pareti e pavimento dopo un danno da acqua.",
+      "Stima completa del ripristino di un ambiente dopo un danno: rimozioni, intonaci, tinteggiature, massetto, pavimento e battiscopa con prezzi del Prezzario Campania 2026.",
+      "Parte da un esempio di ripristino dopo un danno da acqua: modifica quantit\u00e0 e voci in base al tuo caso.", "edili,idraulici,elettrici"),
 ]

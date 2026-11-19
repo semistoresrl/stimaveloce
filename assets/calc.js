@@ -10,32 +10,48 @@
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
   function table(rows) { return rows.map(function (r) { return "<tr" + (r[2] ? ' class="tot"' : "") + "><td>" + r[0] + "</td><td>" + r[1] + "</td></tr>"; }).join(""); }
 
-  var LAV = [["Demolizione/rimozione intonaco", "m²"], ["Rifacimento intonaco", "m²"], ["Tinteggiatura pareti e soffitti", "m²"], ["Rimozione pavimento", "m²"], ["Massetto", "m²"], ["Posa pavimento", "m²"], ["Rivestimenti", "m²"], ["Impianto elettrico (ripristino)", "corpo"], ["Impianto idraulico (ripristino)", "corpo"], ["Controsoffitto", "m²"], ["Infissi", "cad"], ["Smaltimento materiali", "corpo"], ["Altra lavorazione", "corpo"]];
-
-  function addLine(box, d) {
+  var PRZ = null, PRZ_META = null;
+  var FREE = { code: "", n: "Voce libera (prezzo da preventivo)", u: "corpo", p: null };
+  function voci(box) {
+    var cats = (box.getAttribute("data-cats") || "edili,idraulici,elettrici").split(",");
+    return (PRZ || []).filter(function (v) { return cats.indexOf(v.cat) > -1; }).concat([FREE]);
+  }
+  function addLine(box, d, list) {
     d = d || {};
-    var i = box.children.length;
-    var opts = LAV.map(function (l) { return '<option data-u="' + l[1] + '"' + (d.desc === l[0] ? " selected" : "") + ">" + l[0] + "</option>"; }).join("");
+    var i = box.children.length, L = list || voci(box.closest("[data-calc]"));
+    var opts = L.map(function (v, k) { return '<option value="' + k + '"' + ((d.code && v.code === d.code) || (!d.code && !v.code && d.free) ? " selected" : "") + ">" + esc(v.n) + "</option>"; }).join("");
+    var cur = L.filter(function (v) { return d.code ? v.code === d.code : !v.code; })[0] || L[0];
     var el = document.createElement("div");
     el.className = "line";
-    el.innerHTML = '<div class="fld wide"><label class="small" for="ld' + i + '">Voce</label><select class="in" id="ld' + i + '" data-l="desc">' + opts + "</select></div>" +
-      '<div class="fld"><label class="small" for="lu' + i + '">Unità</label><input class="in" id="lu' + i + '" data-l="u" value="' + esc(d.u || "m²") + '"></div>' +
+    el.innerHTML = '<div class="fld wide"><label class="small" for="ld' + i + '">Lavorazione</label><select class="in" id="ld' + i + '" data-l="desc">' + opts + '</select><span class="hint" data-l="code">' + esc(cur.code ? cur.code.replace("CAM26_", "Prezzario Campania 2026 · ") : "Inserisci il prezzo del tuo preventivo") + "</span></div>" +
+      '<div class="fld"><label class="small" for="lu' + i + '">Unità</label><input class="in" id="lu' + i + '" data-l="u" value="' + esc(cur.u) + '"></div>' +
       '<div class="fld"><label class="small" for="lq' + i + '">Quantità</label><input class="in" id="lq' + i + '" data-l="q" type="number" min="0" step="any" inputmode="decimal" value="' + (d.q == null ? "" : d.q) + '"></div>' +
-      '<div class="fld"><label class="small" for="lp' + i + '">Prezzo unit. €</label><input class="in" id="lp' + i + '" data-l="p" type="number" min="0" step="any" inputmode="decimal" placeholder="es. 25" value="' + (d.p == null ? "" : d.p) + '"></div>' +
+      '<div class="fld"><label class="small" for="lp' + i + '">Prezzo unit. €</label><input class="in" id="lp' + i + '" data-l="p" type="number" min="0" step="any" inputmode="decimal" placeholder="es. 25" value="' + (cur.p == null ? (d.p == null ? "" : d.p) : cur.p) + '"></div>' +
       '<button type="button" aria-label="Rimuovi voce" data-del>×</button>';
+    el._list = L;
     box.appendChild(el);
   }
   function lines(form) {
     var out = [];
     form.querySelectorAll(".line").forEach(function (l) {
-      var q = parseFloat(l.querySelector('[data-l="q"]').value), p = parseFloat(l.querySelector('[data-l="p"]').value);
-      out.push({ desc: l.querySelector('[data-l="desc"]').value, u: l.querySelector('[data-l="u"]').value, q: isNaN(q) ? 0 : q, p: isNaN(p) ? 0 : p });
+      if (!l.querySelector('[data-l="desc"]')) return;
+      var q = parseFloat(l.querySelector('[data-l="q"]').value), p = parseFloat(l.querySelector('[data-l="p"]').value), v = (l._list || [])[+l.querySelector('[data-l="desc"]').value] || {};
+      var official = v.code && v.p != null && Math.abs(p - v.p) < 0.005;
+      out.push({ desc: v.n || l.querySelector('[data-l="desc"]').selectedOptions[0].text, code: official ? v.code : "", u: l.querySelector('[data-l="u"]').value, q: isNaN(q) ? 0 : q, p: isNaN(p) ? 0 : p });
     });
     return out;
   }
   function linesRows(ls) {
-    return ls.filter(function (l) { return l.q && l.p; }).map(function (l) { return [esc(l.desc) + ' <span class="muted">' + PCT.format(l.q) + " " + esc(l.u) + " × " + eur(l.p) + "</span>", eur(l.q * l.p)]; });
+    return ls.filter(function (l) { return l.q && l.p; }).map(function (l) { return [esc(l.desc) + ' <span class="muted">' + PCT.format(l.q) + " " + esc(l.u) + " × " + eur(l.p) + (l.code ? " · " + esc(l.code.replace("CAM26_", "")) : " · prezzo inserito") + "</span>", eur(l.q * l.p)]; });
   }
+  var TPL = {
+    "danni-fabbricato": [{ code: "CAM26_R02.040.010.A", q: 18 }, { code: "CAM26_E16.020.030.A", q: 18 }, { code: "CAM26_E21.020.030.A", q: 64 }],
+    "preventivo-lavori": [{ code: "CAM26_R02.060.040.A", q: 20 }, { code: "CAM26_E07.010.010.A", q: 20 }, { code: "CAM26_E13.030.020.A", q: 20 }, { code: "CAM26_E15.080.050.A", q: 18 }],
+    "stime-edili": [{ code: "CAM26_R02.040.010.A", q: 12 }, { code: "CAM26_E16.020.030.A", q: 12 }, { code: "CAM26_E16.020.080.A", q: 30 }, { code: "CAM26_E21.020.030.A", q: 60 }],
+    "stime-idrauliche": [{ code: "CAM26_R02.050.010.A", q: 1 }, { code: "CAM26_I01.010.010.A", q: 2 }, { free: 1, q: 1 }],
+    "stime-elettriche": [{ code: "CAM26_L01.010.010.A", q: 3 }, { code: "CAM26_L01.010.090.A", q: 6 }],
+    "stime-ripristino": [{ code: "CAM26_R02.040.010.A", q: 18 }, { code: "CAM26_E16.020.030.A", q: 18 }, { code: "CAM26_E21.020.030.B", q: 64 }, { code: "CAM26_R02.060.040.A", q: 12 }, { code: "CAM26_E07.010.010.A", q: 12 }, { code: "CAM26_E13.030.020.A", q: 12 }, { code: "CAM26_E15.080.050.A", q: 14 }]
+  };
 
   var C = {};
 
@@ -60,6 +76,8 @@
     rows.push(["Totale lavori", eur(lav), 1], ["Oneri sicurezza", eur(sic)], ["Spese tecniche", eur(tec)], ["Imprevisti", eur(imp)], ["Imponibile", eur(base), 1], ["IVA " + ivaP + "%", eur(iva)], ["Totale preventivo", eur(base + iva), 1]);
     return { big: eur(base + iva), sub: "Imponibile " + eur(base), rows: rows };
   };
+
+  ["stime-edili", "stime-idrauliche", "stime-elettriche", "stime-ripristino"].forEach(function (k) { C[k] = function (f) { return C["preventivo-lavori"](f); }; });
 
   C["franchigia-scoperto"] = function (f) {
     var d = num(f, "danno", 0), fr = num(f, "fr", 0), sc = num(f, "sc", 0), mn = num(f, "scmin", 0), mx = num(f, "scmax", NaN), lim = num(f, "lim", NaN);
@@ -188,13 +206,20 @@
   document.querySelectorAll("[data-calc]").forEach(function (box) {
     var lb = box.querySelector("[data-lines]");
     if (lb) {
-      var demo = box.getAttribute("data-calc") === "danni-fabbricato"
-        ? [{ desc: "Demolizione/rimozione intonaco", u: "m²", q: 18, p: null }, { desc: "Rifacimento intonaco", u: "m²", q: 18, p: null }, { desc: "Tinteggiatura pareti e soffitti", u: "m²", q: 64, p: null }]
-        : [{ desc: "Rimozione pavimento", u: "m²", q: 20, p: null }, { desc: "Posa pavimento", u: "m²", q: 20, p: null }];
-      demo.forEach(function (d) { addLine(lb, d); });
-      box.querySelector("[data-add]").addEventListener("click", function () { addLine(lb, {}); run(box); });
+      var start = function () {
+        (TPL[box.getAttribute("data-calc")] || [{ free: 1 }]).forEach(function (d) { addLine(lb, d); });
+        run(box);
+      };
+      fetch("/assets/prezzario-campania-2026.json").then(function (r) { return r.json(); }).then(function (j) { PRZ = j.voci; PRZ_META = j.meta; start(); }).catch(function () { PRZ = []; start(); });
+      box.querySelector("[data-add]").addEventListener("click", function () { addLine(lb, { free: 0 }); run(box); });
       lb.addEventListener("click", function (ev) { if (ev.target.hasAttribute("data-del")) { ev.target.parentNode.remove(); run(box); } });
-      lb.addEventListener("change", function (ev) { if (ev.target.getAttribute("data-l") === "desc") { var o = ev.target.selectedOptions[0]; var u = ev.target.closest(".line").querySelector('[data-l="u"]'); if (o && u) u.value = o.getAttribute("data-u"); } });
+      lb.addEventListener("change", function (ev) {
+        if (ev.target.getAttribute("data-l") !== "desc") return;
+        var line = ev.target.closest(".line"), v = line._list[+ev.target.value];
+        line.querySelector('[data-l="u"]').value = v.u;
+        line.querySelector('[data-l="p"]').value = v.p == null ? "" : v.p;
+        line.querySelector('[data-l="code"]').textContent = v.code ? v.code.replace("CAM26_", "Prezzario Campania 2026 \u00b7 ") : "Inserisci il prezzo del tuo preventivo";
+      });
     }
     var rb = box.querySelector("[data-rooms]");
     if (rb) {

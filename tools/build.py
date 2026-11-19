@@ -281,7 +281,7 @@ def build_strumenti():
     for t in STRUMENTI:
         head, bld = ph([("/", "Home"), ("/strumenti/", "Strumenti gratuiti"), ("", t["nome"])], t["h1"], t["intro"], "Strumento gratuito")
         body = f'''{head}<section class="sec" style="padding-top:44px"><div class="wrap">
-<div class="calc" data-calc="{t["slug"]}"><form class="card form" novalidate onsubmit="return false">{t["form"]}</form>
+<div class="calc" data-calc="{t["slug"]}" data-cats="{t.get("cats", "edili,idraulici,elettrici")}"><form class="card form" novalidate onsubmit="return false">{t["form"]}</form>
 <div class="res" aria-live="polite"><div class="muted small">{e(t["res_label"])}</div><div class="big" data-out="big">—</div><div class="small muted" data-out="sub"></div><table data-out="tab"></table>
 <div class="no-print" style="display:flex;gap:8px;margin-top:18px;flex-wrap:wrap"><button class="btn btn-s btn-sm" type="button" onclick="window.print()">{ic("printer")}Stampa</button><a class="btn btn-p btn-sm" href="{APP}#prefattibilita">Fallo verificare</a></div></div></div>
 <div class="layout" style="margin-top:56px"><div class="prose"><h2>Formula e criteri utilizzati</h2><div class="formula">{t["formula"]}</div>
