@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /app/
+Disallow: /contatti/grazie/
+
+Sitemap: https://stimaveloce.netlify.app/sitemap.xml

@@ -1,0 +1,108 @@
+# -*- coding: utf-8 -*-
+"""Calcolatori. Il calcolo è in /assets/calc.js (stessi slug)."""
+from data_guide import CC, CDA
+
+def f(name, label, val="", hint="", typ="number", step="any", unit=""):
+    u = f' <span class="muted">({unit})</span>' if unit else ""
+    h = f'<span class="hint">{hint}</span>' if hint else ""
+    return f'<div class="fld"><label for="f-{name}">{label}{u}</label><input class="in" id="f-{name}" name="{name}" type="{typ}" inputmode="decimal" step="{step}" min="0" value="{val}">{h}</div>'
+
+def sel(name, label, opts, hint=""):
+    o = "".join(f'<option value="{v}">{t}</option>' for v, t in opts)
+    h = f'<span class="hint">{hint}</span>' if hint else ""
+    return f'<div class="fld"><label for="f-{name}">{label}</label><select class="in" id="f-{name}" name="{name}">{o}</select>{h}</div>'
+
+def row(*x): return '<div class="row2">' + "".join(x) + "</div>"
+def row3(*x): return '<div class="row3">' + "".join(x) + "</div>"
+
+LINES = ('<div class="lbl">Lavorazioni</div><div class="lines" data-lines></div>'
+         '<button class="btn btn-s btn-sm" type="button" data-add style="justify-self:start">+ Aggiungi lavorazione</button>')
+
+STRUMENTI = [
+ dict(slug="danni-fabbricato", icon="building-2", nome="Calcolatore danni al fabbricato",
+  h1="Calcolatore danni al fabbricato", breve="Lavorazioni, quantità e prezzi, con IVA, vetustà e franchigia.",
+  title="Calcolatore danni al fabbricato: stima lavorazioni e indennizzo | StimaVeloce",
+  desc="Calcola un importo orientativo del danno al fabbricato: lavorazioni, quantità, prezzi unitari, costi accessori, IVA, vetustà e franchigia di polizza.",
+  intro="Inserisci le lavorazioni necessarie per il ripristino con quantità e prezzo unitario. Il calcolatore applica costi accessori, IVA, eventuale vetustà e franchigia.",
+  res_label="Importo orientativo indennizzabile",
+  form=row(sel("tipo", "Tipologia immobile", [("abitazione","Abitazione"),("condominio","Parti comuni condominiali"),("commerciale","Locale commerciale"),("altro","Altro")]), f("sup", "Superficie interessata", "", "", unit="m²")) + LINES +
+       row(f("acc", "Costi accessori", "5", "Oneri sicurezza, smaltimento, spese tecniche", unit="%"), sel("iva", "IVA applicabile", [("10","10% (manutenzione su abitazioni)"),("22","22%"),("0","Non applicabile o recuperabile")])) +
+       row(f("vet", "Deprezzamento per vetustà", "0", "Solo se la polizza indennizza a stato d'uso", unit="%"), f("fr", "Franchigia", "0", "", unit="€")),
+  formula="<p><code>Imponibile = Σ (quantità × prezzo unitario)</code><br><code>Costi accessori = Imponibile × %accessori</code><br><code>Totale lavori = (Imponibile + accessori) × (1 + IVA)</code><br><code>Dopo vetustà = Totale lavori × (1 − %vetustà)</code><br><code>Indennizzo orientativo = max(0, Dopo vetustà − franchigia)</code></p>",
+  spiegazione="<p>Il <b>totale lavori</b> è il costo stimato del ripristino. L'<b>importo indennizzabile</b> tiene conto di come la polizza tratta il danno: deprezzamento se l'indennizzo è a stato d'uso e franchigia. Scoperti, limiti di indennizzo e regola proporzionale si calcolano con gli strumenti dedicati.</p><p>L'IVA è indennizzabile quando resta effettivamente a carico dell'assicurato; in genere non lo è per chi può detrarla.</p>",
+  avvertenze="I prezzi unitari li inserisci tu: usa preventivi dettagliati o i prezzari regionali. Il risultato è orientativo e non sostituisce un computo metrico redatto da un tecnico né considera tutte le clausole della polizza.",
+  fonti=[CC]),
+ dict(slug="franchigia-scoperto", icon="percent", nome="Calcolatore franchigia e scoperto",
+  h1="Calcolatore franchigia e scoperto", breve="Applica franchigia, scoperto con minimo e massimo e limite di indennizzo.",
+  title="Calcolatore franchigia e scoperto con minimo, massimo e limite | StimaVeloce",
+  desc="Calcola l'indennizzo applicando franchigia fissa, scoperto percentuale con minimo e massimo e limite di indennizzo. Calcolo passo per passo.",
+  intro="Inserisci il danno e le clausole della tua polizza. Vedi passo per passo quanto resta a tuo carico e quanto è indennizzabile.",
+  res_label="Indennizzo calcolato",
+  form=f("danno", "Importo del danno", "5000", unit="€") + row(f("fr", "Franchigia fissa", "250", unit="€"), f("sc", "Scoperto", "10", unit="%")) +
+       row(f("scmin", "Minimo di scoperto", "500", unit="€"), f("scmax", "Massimo di scoperto", "", "Lascia vuoto se non previsto", unit="€")) +
+       f("lim", "Limite di indennizzo", "", "Lascia vuoto se non previsto", unit="€") +
+       sel("comb", "Se sono previsti sia franchigia sia scoperto", [("max","Si applica il maggiore dei due (più frequente)"),("somma","Si applicano entrambi")], "Controlla la formulazione della tua polizza") +
+       sel("ord", "Ordine di applicazione del limite", [("dopo","Il limite si applica dopo le detrazioni (più frequente)"),("prima","Le detrazioni si applicano al danno ridotto al limite")]),
+  formula="<p><code>Scoperto = danno × % (non meno del minimo, non oltre il massimo)</code><br><code>A tuo carico = max(franchigia, scoperto)</code> oppure <code>franchigia + scoperto</code><br><code>Indennizzo = min(danno − a tuo carico, limite)</code> — oppure, se il limite si applica prima: <code>min(danno, limite) − a tuo carico</code></p>",
+  spiegazione="<p>La <b>franchigia</b> è un importo fisso a tuo carico; lo <b>scoperto</b> è una percentuale del danno, spesso con un minimo in euro. Il <b>limite di indennizzo</b> è l'importo massimo che la compagnia paga per quel tipo di danno. L'ordine con cui si applicano cambia il risultato: per questo puoi sceglierlo.</p>",
+  avvertenze="Le polizze possono prevedere combinazioni diverse da quelle proposte. Verifica sempre il testo della clausola. Il risultato non tiene conto della regola proporzionale: usa il calcolatore sottoassicurazione.",
+  fonti=[CC]),
+ dict(slug="sottoassicurazione", icon="scale", nome="Calcolatore sottoassicurazione",
+  h1="Calcolatore sottoassicurazione (regola proporzionale)", breve="Indennizzo teorico secondo l'art. 1907 c.c., con tolleranza o primo rischio.",
+  title="Calcolatore regola proporzionale e sottoassicurazione (art. 1907 c.c.) | StimaVeloce",
+  desc="Calcola l'indennizzo teorico quando la somma assicurata è inferiore al valore del bene: regola proporzionale dell'art. 1907 c.c., tolleranza e primo rischio assoluto.",
+  intro="Se la somma assicurata è inferiore al valore del bene, l'indennizzo si riduce in proporzione, salvo patto contrario. Inserisci i valori per vedere l'effetto.",
+  res_label="Indennizzo teorico",
+  form=row(f("val", "Valore assicurabile al momento del sinistro", "300000", unit="€"), f("som", "Somma assicurata", "200000", unit="€")) + f("danno", "Importo del danno", "30000", unit="€") +
+       sel("forma", "Forma di assicurazione", [("intero","Valore intero (si applica l'art. 1907)"),("primo","Primo rischio assoluto (nessuna proporzione)")]) +
+       f("tol", "Tolleranza prevista in polizza (deroga)", "0", "Es. 10 o 20: entro questo scarto la regola non si applica", unit="%"),
+  formula="<p><code>Se somma assicurata ≥ valore × (1 − tolleranza) → nessuna riduzione</code><br><code>Altrimenti: indennizzo = danno × somma assicurata ÷ valore</code><br><code>In ogni caso l'indennizzo non supera la somma assicurata</code></p><p class='small muted'>Art. 1907 c.c.: «Se l'assicurazione copre solo una parte del valore che la cosa assicurata aveva nel tempo del sinistro, l'assicuratore risponde dei danni in proporzione della parte suddetta, a meno che non sia diversamente convenuto».</p>",
+  spiegazione="<p>Il rapporto <b>somma assicurata ÷ valore</b> indica quanta parte del bene è assicurata. Con la forma a <b>primo rischio assoluto</b> la compagnia risponde fino alla somma assicurata senza considerare il valore totale. La tolleranza è una deroga contrattuale: alcune polizze, superata la tolleranza, calcolano la proporzione in modo diverso.</p>",
+  avvertenze="Il calcolo è teorico. Franchigie, scoperti e limiti si applicano in aggiunta, secondo l'ordine previsto dalla polizza. La stima del valore assicurabile richiede una valutazione tecnica.",
+  fonti=[CC]),
+ dict(slug="vetusta", icon="hourglass", nome="Calcolatore vetustà e svalutazione",
+  h1="Calcolatore vetustà e svalutazione", breve="Distingue vetustà tecnica, valore di mercato e criterio di polizza.",
+  title="Calcolatore vetustà e deprezzamento: valore a nuovo o stato d'uso | StimaVeloce",
+  desc="Calcola il deprezzamento per vetustà di un bene e confrontalo con il criterio di indennizzo della polizza: valore a nuovo, stato d'uso, limite di deprezzamento.",
+  intro="Tre cose diverse spesso confuse: la vetustà tecnica (quanto il bene si è consumato), il valore commerciale (quanto varrebbe sul mercato) e il criterio della polizza (come viene indennizzato).",
+  res_label="Indennizzo secondo il criterio scelto",
+  form=row(sel("bene", "Tipologia del bene", [("10","Elettrodomestici ed elettronica (vita utile 10 anni)"),("15","Mobili e arredi (15 anni)"),("20","Impianti e serramenti interni (20 anni)"),("30","Pavimenti, rivestimenti, infissi esterni (30 anni)"),("40","Strutture e coperture (40 anni)"),("custom","Altro: indico la vita utile")]), f("vita", "Vita utile (se «Altro»)", "", unit="anni")) +
+       row(f("anno", "Anno di acquisto o installazione", "2016", typ="number", step="1"), f("nuovo", "Valore a nuovo (costo di rimpiazzo)", "1200", unit="€")) +
+       row(sel("stato", "Stato di conservazione", [("1","Normale"),("0.85","Buono (deprezzamento ridotto)"),("1.2","Scarso (deprezzamento aumentato)")]), f("res", "Valore residuo minimo", "20", "Il bene in uso conserva comunque un valore", unit="%")) +
+       row(sel("crit", "Criterio della polizza", [("nuovo","Valore a nuovo"),("uso","Stato d'uso"),("limite","Valore a nuovo con limite di deprezzamento")]), f("lim", "Limite di deprezzamento (se previsto)", "50", "Oltre questo deprezzamento si indennizza a stato d'uso", unit="%")) +
+       f("merc", "Valore di mercato noto (facoltativo)", "", "Es. quotazione dell'usato: è un dato diverso dalla vetustà", unit="€"),
+  formula="<p><code>Età = anno corrente − anno di acquisto</code><br><code>Vetustà tecnica = min(età ÷ vita utile × coefficiente di stato, 1 − residuo minimo)</code><br><code>Valore a stato d'uso = valore a nuovo × (1 − vetustà)</code><br><code>Valore a nuovo con limite: se vetustà > limite → stato d'uso, altrimenti valore a nuovo</code></p>",
+  spiegazione="<p>La <b>vetustà tecnica</b> è calcolata in modo lineare sulla vita utile del bene, corretta per lo stato di conservazione. Il <b>valore di mercato</b> dipende da domanda e offerta e non coincide con la vetustà: se lo conosci viene mostrato a confronto. Il <b>criterio di polizza</b> decide quale valore conta: con il valore a nuovo la differenza rispetto allo stato d'uso viene spesso pagata solo dopo il rimpiazzo o la riparazione.</p>",
+  avvertenze="Le vite utili proposte sono valori di riferimento indicativi, non tabelle contrattuali: se la polizza o la prassi del settore prevedono criteri diversi, prevalgono quelli. Per i veicoli il valore commerciale si determina con le quotazioni di mercato.",
+  fonti=[CC]),
+ dict(slug="danno-biologico", icon="heart-pulse", nome="Calcolatore danno biologico orientativo",
+  h1="Calcolatore danno biologico orientativo (lesioni lievi, art. 139)", breve="Micropermanenti da 1 a 9 punti e invalidità temporanea, valori aggiornati.",
+  title="Calcolatore danno biologico lieve entità art. 139 – valori 2026 | StimaVeloce",
+  desc="Calcolo orientativo del danno biologico per lesioni di lieve entità (1–9 punti) da sinistri stradali secondo l'art. 139 del Codice delle assicurazioni, con importi aggiornati al DM 2026.",
+  intro="Per sinistri stradali e nautici con lesioni di lieve entità (invalidità permanente fino a 9 punti) il risarcimento segue gli importi dell'art. 139 del Codice delle assicurazioni, aggiornati ogni anno.",
+  res_label="Importo orientativo",
+  form=sel("rif", "Riferimento normativo o tabellare", [("139","Art. 139 Codice assicurazioni – lesioni lievi (1–9 punti), circolazione veicoli e natanti"),("tun","Tabella unica nazionale – lesioni non lievi (10–100 punti)"),("milano","Tabelle del Tribunale di Milano – altri ambiti")]) +
+       row(f("data", "Data del sinistro", "2026-05-15", typ="date"), f("eta", "Età del danneggiato alla data del sinistro", "35", typ="number", step="1", unit="anni")) +
+       f("punti", "Invalidità permanente stimata dal medico legale", "3", typ="number", step="1", unit="punti, da 1 a 9") +
+       row3(f("itt", "Giorni di inabilità al 100%", "10", typ="number", step="1"), f("itp75", "Giorni al 75%", "0", typ="number", step="1"), f("itp50", "Giorni al 50%", "15", typ="number", step="1")) +
+       row(f("itp25", "Giorni al 25%", "20", typ="number", step="1"), f("pers", "Personalizzazione (fino al 20%)", "0", "Solo se riconosciuta per specifiche ripercussioni dinamico-relazionali", unit="%")),
+  formula="<p><code>Valore permanente = punti × valore del primo punto × coefficiente per punti × riduzione per età</code><br>Coefficienti: 1 punto ×1,0 · 2 ×1,1 · 3 ×1,2 · 4 ×1,3 · 5 ×1,5 · 6 ×1,7 · 7 ×1,9 · 8 ×2,1 · 9 ×2,3<br>Riduzione per età: −0,5% per ogni anno a partire dall'11° (<code>1 − 0,005 × (età − 10)</code>)<br><code>Temporanea = giorni × importo giornaliero × percentuale di inabilità</code><br><code>Totale = (permanente + temporanea) × (1 + personalizzazione)</code></p><p>Importi in vigore: dal 1° aprile 2025 primo punto 963,40 € e inabilità assoluta 56,18 €/giorno (DM 18 luglio 2025); dal 1° aprile 2026 primo punto 988,45 € e 57,64 €/giorno (DM 2026, +2,6%).</p>",
+  spiegazione="<p>Il calcolatore traduce in euro una percentuale di invalidità <b>già stimata da un medico legale</b>. La personalizzazione fino al 20% è prevista dall'art. 139, comma 3, solo per lesioni che incidono in modo rilevante su specifici aspetti dinamico-relazionali documentati.</p><p>Le lesioni da 10 a 100 punti seguono la <b>Tabella unica nazionale</b> (DPR 13 gennaio 2025, n. 12) per i sinistri stradali e sanitari avvenuti dal 5 marzo 2025, mentre in altri ambiti si fa normalmente riferimento alle <b>Tabelle del Tribunale di Milano</b>: queste tabelle non sono calcolate qui.</p>",
+  avvertenze="Risultato orientativo, non è una liquidazione. Non comprende spese mediche, danno patrimoniale, interessi e rivalutazione. Le tabelle diverse non vanno confuse: ogni riferimento si applica solo al proprio ambito e periodo. Per sinistri anteriori ad aprile 2025 o per verificare aggiornamenti successivi consulta il decreto in vigore alla data del sinistro.",
+  aggiornato="19 novembre 2026 (importi DM 2026, decorrenza aprile 2026)",
+  fonti=[CDA, ("DM MIMIT 18 luglio 2025 – aggiornamento importi art. 139 (PDF)", "https://www.mimit.gov.it/images/stories/normativa/DM_microlesioni_2025_firmato.pdf"),
+         ("Aggiornamento importi danno biologico 2026 (PDF, ACI Rivista giuridica)", "https://rivistagiuridica.aci.it/fileadmin/Documenti/2026/Normativa/Decreti_Ministeriali/aggiornamento_importi_danno_biologico_2026.pdf"),
+         ("DPR 13 gennaio 2025, n. 12 – Tabella unica nazionale (Gazzetta Ufficiale)", "https://www.gazzettaufficiale.it/eli/id/2025/02/18/25G00019/sg")]),
+ dict(slug="preventivo-lavori", icon="receipt", nome="Calcolatore preventivo lavori",
+  h1="Calcolatore preventivo lavori", breve="Componi un preventivo con voci, oneri, spese tecniche e IVA.",
+  title="Calcolatore preventivo lavori di ripristino con IVA e oneri | StimaVeloce",
+  desc="Componi un preventivo dei lavori di ripristino: voci, quantità, prezzi unitari, oneri per la sicurezza, spese tecniche, imprevisti e IVA. Stampabile.",
+  intro="Utile per confrontare preventivi o prepararne uno dettagliato da presentare alla compagnia. Ogni voce mostra quantità e prezzo unitario.",
+  res_label="Totale preventivo",
+  form=LINES + row3(f("sic", "Oneri per la sicurezza", "3", unit="%"), f("tec", "Spese tecniche", "0", unit="%"), f("imp", "Imprevisti", "0", unit="%")) +
+       sel("iva", "IVA", [("10","10%"),("22","22%"),("0","Esente o non applicabile")]),
+  formula="<p><code>Lavori = Σ (quantità × prezzo unitario)</code><br><code>Oneri sicurezza, spese tecniche e imprevisti = Lavori × rispettive %</code><br><code>Imponibile = Lavori + oneri + spese + imprevisti</code><br><code>Totale = Imponibile × (1 + IVA)</code></p>",
+  spiegazione="<p>Un preventivo verificabile indica per ogni voce unità di misura, quantità e prezzo unitario. Le percentuali di oneri e spese tecniche variano da caso a caso: inseriscile solo se effettivamente previste.</p>",
+  avvertenze="L'aliquota IVA dipende dal tipo di intervento e di immobile: verifica con l'impresa o il consulente fiscale. I prezzi unitari sono quelli che inserisci tu.",
+  fonti=[]),
+]
