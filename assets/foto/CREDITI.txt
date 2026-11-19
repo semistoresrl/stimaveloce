@@ -1,0 +1,18 @@
+Foto da Unsplash (licenza Unsplash, uso commerciale consentito senza attribuzione obbligatoria).
+infiltrazioni-soffitto: https://unsplash.com/photos/CNkOUScVCqE
+umidita-pareti: https://unsplash.com/photos/1qeTU99G07Q
+rottura-tubazioni: https://unsplash.com/photos/91LGCVN5SAI
+pavimenti: https://unsplash.com/photos/nmkFhCxIHsc
+eventi-atmosferici: https://unsplash.com/photos/L0cSRDaIp9g
+impianti: https://unsplash.com/photos/PkHf7BUWbtk
+strutture: https://unsplash.com/photos/v01rpdnjTg0
+svc-perizia-danni-auto: https://unsplash.com/photos/CSkriQWeTVs
+svc-contestazione-perizia-assicurativa: https://unsplash.com/photos/RzVENp1UbRc
+svc-danni-acqua-condotta: https://unsplash.com/photos/91LGCVN5SAI
+svc-danni-infiltrazioni: https://unsplash.com/photos/aRUdvi4lFC4
+svc-danni-eventi-atmosferici: https://unsplash.com/photos/L0cSRDaIp9g
+svc-danni-fabbricati: https://unsplash.com/photos/v01rpdnjTg0
+svc-valutazione-preventivi: https://unsplash.com/photos/Re1O5byZ8bY
+svc-sinistri-nautici: https://unsplash.com/photos/z_diNtQx9jY
+svc-supporto-sinistri-complessi: https://unsplash.com/photos/XXanshmt5so
+hero-bg: https://unsplash.com/photos/XXanshmt5so

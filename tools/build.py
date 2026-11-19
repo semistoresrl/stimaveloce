@@ -230,7 +230,9 @@ def build_servizi():
         rel_t = "".join(tool_card(TV[t]) for t in s["tools"])
         rel_g = "".join(f'<li><a href="/guide/{g}/">{e(GV[g]["h1"])}</a></li>' for g in s["guides"])
         rel_s = "".join(f'<li><a href="/servizi/{x}/">{e(SV[x]["h1"])}</a></li>' for x in s["correlati"])
-        body = f'''{head}<section class="sec" style="padding-top:48px"><div class="wrap layout"><article class="prose">
+        fp = os.path.join(ROOT, "assets/foto", f'svc-{s["slug"]}.webp')
+        fig = f'<figure class="svc-ph"><img src="/assets/foto/svc-{s["slug"]}.webp" alt="{e(s["h1"])}: immagine illustrativa" width="1600" height="900" fetchpriority="high" decoding="async"></figure>' if os.path.exists(fp) else ""
+        body = f'''{head}<section class="sec" style="padding-top:48px"><div class="wrap layout"><article class="prose">{fig}
 <h2>Il problema</h2><p>{e(s["problema"])}</p>
 <h2>Come ti aiutiamo</h2><p>{e(s["servizio"])}</p><div class="box"><ul class="ticks">{"".join(f"<li>{e(x)}</li>" for x in s["cosa"])}</ul></div>
 <h2>Documenti necessari</h2><ul>{"".join(f"<li>{e(x)}</li>" for x in s["documenti"])}</ul><p class="small muted">Se non hai tutto non preoccuparti: ti indichiamo noi cosa manca.</p>
