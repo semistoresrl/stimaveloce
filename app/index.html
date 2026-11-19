@@ -663,6 +663,17 @@ body{background:#fff}
 .cta-lime{background:linear-gradient(135deg,#30363D,#454C54)!important}
 .eyebrow::before{background:#C7AD7C!important}
 .wm span.w i{color:#C7AD7C!important}
+
+/* v12: arancione #FF7A1A, blu #1F5EFF, testo #0B1B3A, sfondo #F7F8FB */
+:root{--g:#1F5EFF;--gd:#0B1B3A;--gl:#EEF3FF;--gm:#DCE6FF;--mint:#EEF3FF;--mint2:#F7F8FB;--k:#0B1B3A;--k2:#0B1B3A;--k3:#1F5EFF;--t2:#0B1B3A;--t3:#4A5672;--t4:#4A5672;--b:#E3E7F0;--b2:#D3DAE8;--bg2:#EEF1F7;--paper:#F7F8FB;--forest:#0B1B3A;--lime:#EEF3FF;--gold:#FF7A1A}
+body{background:#F7F8FB;color:#0B1B3A}
+h1,h2,.h1,.h2,.ht{color:#1F5EFF}
+.btn-g,.btn-l{background:#FF7A1A!important;color:#0B1B3A!important;border-radius:14px!important}
+.btn-g:hover,.btn-l:hover{background:#E8650A!important}
+.cta-lime{background:linear-gradient(135deg,#1F5EFF,#3D74FF)!important}
+.eyebrow::before{background:#FF7A1A!important}
+.wm span.w i{color:#FF7A1A!important}
+.card{border-radius:22px}
 </style>
 </head>
 <body>
@@ -723,7 +734,7 @@ var PARTNER_CAT = {rca:'Carrozzeria', nautico:'Cantiere nautico', acqua:'Impresa
 function seed(){
   return {
     v: 1,
-    prezzi: {stima:45, perizia:69, video:29, feeMin:10, feeMax:20, feeB2B:8},
+    prezzi: {stima:30, perizia:60, fabbricati:130, medico:250, video:29, feeMin:10, feeMax:20, feeB2B:8},
     cart: [],
     cookie: null,
     pratiche: [{
@@ -742,6 +753,7 @@ function seed(){
 }
 
 function migrate(d){
+  if (d.prezzi) { if (d.prezzi.stima === 45) d.prezzi.stima = 30; if (d.prezzi.perizia === 69) d.prezzi.perizia = 60; if (d.prezzi.fabbricati == null) d.prezzi.fabbricati = 130; if (d.prezzi.medico == null) d.prezzi.medico = 250; }
   if (!d.reviews) d.reviews = seedReviews();
   if (!d.session) d.session = null;
   d.pratiche.forEach(function(p){ if (p.esempio && !p.email) p.email = 'demo@stimaveloce.it'; });
@@ -1323,7 +1335,7 @@ function addUploads(input){
 }
 
 /* ---------- CARRELLO & CHECKOUT ---------- */
-var SERV = function(id){ var P = S.prezzi; return {stima:{n:'Stima Tecnica Online', p:P.stima}, perizia:{n:'Perizia Tecnica', p:P.perizia}, video:{n:'Video-perizia in diretta', p:P.video}}[id]; };
+var SERV = function(id){ var P = S.prezzi; return {stima:{n:'Stima senza firma', p:P.stima}, perizia:{n:'Perizia auto/moto', p:P.perizia}, fabbricati:{n:'Perizia fabbricati', p:P.fabbricati != null ? P.fabbricati : 130}, medico:{n:'Valutazione medico-legale', p:P.medico != null ? P.medico : 250}, video:{n:'Video-perizia in diretta', p:P.video}}[id]; };
 function cartTotal(){ return S.cart.reduce(function(a,id){ return a + SERV(id).p; }, 0); }
 function vCarrello(){
   var items = S.cart;
@@ -1663,7 +1675,7 @@ function logEvt(chi, cosa){ S.log.unshift({at:new Date().toLocaleString('it-IT',
 var ARR = '<span class="arr" aria-hidden="true">↗</span>';
 
 /* ---------- logo ---------- */
-function shield(size){ return '<svg width="'+size+'" height="'+Math.round(size*1.12)+'" viewBox="0 0 34 38" aria-hidden="true"><path d="M17 1.5 L31.5 6.5 V18 C31.5 27.5 25 33.5 17 36.5 C9 33.5 2.5 27.5 2.5 18 V6.5Z" fill="#30363D"/><path d="M10.5 19 l4.8 4.8 l8.6 -10.4" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>'; }
+function shield(size){ return '<svg width="'+size+'" height="'+Math.round(size*1.12)+'" viewBox="0 0 34 38" aria-hidden="true"><path d="M17 1.5 L31.5 6.5 V18 C31.5 27.5 25 33.5 17 36.5 C9 33.5 2.5 27.5 2.5 18 V6.5Z" fill="#1F5EFF"/><path d="M10.5 19 l4.8 4.8 l8.6 -10.4" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>'; }
 function logoHTML(sub){ return shield(30)+'<span class="wm"><span class="w"><b>Stima</b>Veloce<i>.</i></span>'+(sub===false?'':'<small>A CURA DELLO STUDIO DELLA VECCHIA</small>')+'</span>'; }
 
 /* ---------- header / footer ---------- */
@@ -2806,6 +2818,8 @@ var VIEWS = {'':vHome, home:vHome, prefattibilita:vPrefattibilita, analizza:vPre
 var pendingScroll = null;
 function render(keepScroll){
   var r = location.hash.replace('#','');
+  var acq = /^acquista-(stima|perizia|fabbricati|medico)$/.exec(r);
+  if (acq) { S.cart = [acq[1]]; save(); location.replace('#checkout'); return; }
   var v = VIEWS[r] || vHome;
   var y = window.scrollY;
   $('#app').innerHTML = header() + '<main id="main">' + v() + '</main>' + footer();

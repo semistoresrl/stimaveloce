@@ -45,3 +45,14 @@
     steps.forEach(function (s) { so.observe(s); });
   }
 })();
+(function () {
+  "use strict";
+  document.addEventListener("click", function (e) {
+    var m = e.target.closest && e.target.closest("[data-open-menu]");
+    if (m) { e.preventDefault(); var d = document.getElementById("menu"); if (d) { d.setAttribute("open", ""); window.scrollTo({ top: 0 }); } return; }
+    var w = e.target.closest && e.target.closest("[data-open-wa]");
+    if (w) { var dl = document.querySelector("[data-wa]"); if (dl && dl.showModal) dl.showModal(); }
+  });
+  var mot = new URLSearchParams(location.search).get("motivo"), sel = document.getElementById("c-mot");
+  if (mot && sel) { for (var i = 0; i < sel.options.length; i++) if (sel.options[i].value === mot) sel.selectedIndex = i; }
+})();

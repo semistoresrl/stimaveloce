@@ -2,7 +2,7 @@
 from data_base import SITE
 
 HOME_FAQ = [
- ("Quanto costa?", "Descrivere il caso è gratuito. La stima tecnica online costa 45 €, la perizia tecnica con relazione firmata 69 €. Analisi documentali e consulenze specialistiche sono su preventivo, comunicato prima di iniziare."),
+ ("Quanto costa?", "Descrivere il caso è gratuito. La stima senza firma costa 30 €, la perizia auto/moto 60 €, la perizia fabbricati 130 € e la valutazione medico-legale 250 €. Analisi documentali e consulenze specialistiche sono su preventivo, comunicato prima di iniziare."),
  ("Mi garantite il risarcimento?", "No. Nessuno può garantirlo onestamente: la decisione spetta alla compagnia e, in caso di disaccordo, alle procedure previste. Ti diamo una valutazione tecnica seria e documentata da usare nel confronto."),
  ("Devo venire in studio?", "No, nella maggior parte dei casi basta caricare foto e documenti online. Se serve un sopralluogo te lo diciamo prima, con il relativo costo."),
  ("Quali documenti servono?", "Dipende dal caso: di solito foto del danno, polizza, preventivi e comunicazioni della compagnia. Il percorso guidato ti indica cosa caricare e ti segnaliamo noi eventuali mancanze."),
@@ -11,12 +11,12 @@ HOME_FAQ = [
 
 FAQ_ALL = [
  ("Servizi e costi", HOME_FAQ[:2] + [
-   ("Che differenza c'è tra stima e perizia?", "La stima tecnica online è una prima valutazione orientativa basata su foto e documenti. La perizia tecnica è una relazione completa, con quantificazione motivata di ogni voce, firmata dal tecnico."),
+   ("Che differenza c'è tra stima e perizia?", "La stima senza firma è una prima valutazione orientativa basata su foto e documenti. La perizia è una relazione completa, con quantificazione motivata di ogni voce, firmata dal tecnico."),
    ("Come pago?", "Online, al momento dell'ordine. Ricevi conferma via email e trovi l'ordine nella tua area personale."),
    ("Posso annullare?", "Sì, come consumatore hai 14 giorni per recedere. Se chiedi di iniziare subito e il servizio viene completato prima, il recesso non è più possibile; se recedi durante il lavoro paghi solo la parte svolta."),
  ]),
  ("Documenti e tempi", [HOME_FAQ[3],
-   ("Quanto tempo ci vuole?", "La stima tecnica di norma entro 3 giorni lavorativi e la perizia entro 5–7 giorni lavorativi dalla documentazione completa. Per casi complessi i tempi sono indicati nel preventivo."),
+   ("Quanto tempo ci vuole?", "La stima senza firma di norma entro 3 giorni lavorativi, la perizia auto/moto entro 5–7 e la perizia fabbricati entro 7–10 giorni lavorativi dalla documentazione completa. Per casi complessi i tempi sono indicati nel preventivo."),
    ("Posso caricare documenti in un secondo momento?", "Sì, dalla tua area personale puoi aggiungere documenti in qualsiasi momento finché la pratica è aperta."),
    ("Entro quando devo avvisare la mia compagnia?", "Il Codice civile prevede l'avviso entro tre giorni da quando ne sei venuto a conoscenza, salvo termini diversi in polizza (art. 1913 c.c.). Non aspettare la nostra valutazione per farlo."),
  ]),
