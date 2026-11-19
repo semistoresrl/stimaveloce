@@ -654,6 +654,15 @@ h1,h2,h3,.h1,.h2,.wm{font-family:Manrope,Inter,system-ui,sans-serif}
 .feat-2{background:#E8F1EB!important;color:#174D3A!important}
 .eyebrow::before{background:#C5A66A!important}
 .wm span.w i{color:#C5A66A!important}
+
+/* v11: Graphite & Champagne */
+:root{--g:#28634F;--gd:#30363D;--gl:#F2F4F5;--gm:#E3E6E9;--mint:#F2F4F5;--mint2:#F7F8F9;--k:#30363D;--k2:#30363D;--k3:#454C54;--t2:#30363D;--t3:#5C646D;--t4:#5C646D;--b:#E3E6E9;--b2:#D5D9DD;--bg2:#F2F4F5;--paper:#FFFFFF;--forest:#30363D;--lime:#F2F4F5;--gold:#C7AD7C}
+body{background:#fff}
+.btn-g,.btn-l{background:#28634F!important;color:#fff!important}
+.btn-g:hover,.btn-l:hover{background:#1F4F3F!important}
+.cta-lime{background:linear-gradient(135deg,#30363D,#454C54)!important}
+.eyebrow::before{background:#C7AD7C!important}
+.wm span.w i{color:#C7AD7C!important}
 </style>
 </head>
 <body>
@@ -1654,7 +1663,7 @@ function logEvt(chi, cosa){ S.log.unshift({at:new Date().toLocaleString('it-IT',
 var ARR = '<span class="arr" aria-hidden="true">↗</span>';
 
 /* ---------- logo ---------- */
-function shield(size){ return '<svg width="'+size+'" height="'+Math.round(size*1.12)+'" viewBox="0 0 34 38" aria-hidden="true"><path d="M17 1.5 L31.5 6.5 V18 C31.5 27.5 25 33.5 17 36.5 C9 33.5 2.5 27.5 2.5 18 V6.5Z" fill="#174D3A"/><path d="M10.5 19 l4.8 4.8 l8.6 -10.4" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>'; }
+function shield(size){ return '<svg width="'+size+'" height="'+Math.round(size*1.12)+'" viewBox="0 0 34 38" aria-hidden="true"><path d="M17 1.5 L31.5 6.5 V18 C31.5 27.5 25 33.5 17 36.5 C9 33.5 2.5 27.5 2.5 18 V6.5Z" fill="#30363D"/><path d="M10.5 19 l4.8 4.8 l8.6 -10.4" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>'; }
 function logoHTML(sub){ return shield(30)+'<span class="wm"><span class="w"><b>Stima</b>Veloce<i>.</i></span>'+(sub===false?'':'<small>A CURA DELLO STUDIO DELLA VECCHIA</small>')+'</span>'; }
 
 /* ---------- header / footer ---------- */
