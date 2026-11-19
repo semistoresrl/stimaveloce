@@ -106,3 +106,56 @@ STRUMENTI = [
   avvertenze="L'aliquota IVA dipende dal tipo di intervento e di immobile: verifica con l'impresa o il consulente fiscale. I prezzi unitari sono quelli che inserisci tu.",
   fonti=[]),
 ]
+
+STRUMENTI += [
+ dict(slug="massimale", icon="shield-check", nome="Calcolatore massimale e sottolimiti",
+  h1="Calcolatore massimale e sottolimiti", breve="Quanto resta coperto tra massimale per sinistro, annuo e sottolimiti.",
+  title="Calcolatore massimale, sottolimite e massimale annuo | StimaVeloce",
+  desc="Verifica quanto può essere indennizzato rispetto al massimale per sinistro, al sottolimite della garanzia e al massimale annuo già in parte utilizzato.",
+  intro="Il massimale è l'importo massimo che la compagnia paga. Spesso ci sono anche un sottolimite per la singola garanzia e un massimale per anno assicurativo.",
+  res_label="Importo nei limiti di polizza",
+  form=f("danno", "Danno indennizzabile dopo franchigie e scoperti", "60000", unit="€") + row(f("mass", "Massimale per sinistro", "50000", unit="€"), f("sotto", "Sottolimite della garanzia", "", "Lascia vuoto se non previsto", unit="€")) +
+       row(f("annuo", "Massimale per anno assicurativo", "", "Lascia vuoto se non previsto", unit="€"), f("usato", "Già liquidato nello stesso anno", "0", unit="€")),
+  formula="<p><code>Limite applicabile = il più basso tra massimale per sinistro, sottolimite e (massimale annuo − già liquidato)</code><br><code>Importo = min(danno, limite applicabile)</code><br><code>Scoperto di massimale = danno − importo</code></p>",
+  spiegazione="<p>Il <b>sottolimite</b> vale per una specifica garanzia o tipo di danno ed è più basso del massimale generale. Il <b>massimale annuo</b> si consuma con i sinistri liquidati nello stesso anno assicurativo. La parte di danno che supera il limite resta scoperta.</p>",
+  avvertenze="Il danno da inserire è quello già ridotto da franchigie, scoperti ed eventuale regola proporzionale, secondo l'ordine previsto dalla polizza: usa prima gli altri calcolatori.",
+  fonti=[CC]),
+ dict(slug="iva", icon="percent", nome="Calcolatore IVA sull'indennizzo",
+  h1="Calcolatore IVA: scorporo, aggiunta e IVA indennizzabile", breve="Scorpora o aggiunge l'IVA e indica quanta è indennizzabile.",
+  title="Calcolatore IVA: scorporo, aggiunta e IVA indennizzabile | StimaVeloce",
+  desc="Scorpora o aggiungi l'IVA a un preventivo e calcola quanta IVA è indennizzabile in base alla detraibilità: utile per privati, professionisti e aziende.",
+  intro="L'IVA su una riparazione è un costo per chi non può detrarla. Chi la detrae, come molte aziende e professionisti, di norma non ne ottiene il rimborso nell'indennizzo.",
+  res_label="Totale con IVA",
+  form=row(f("imp", "Importo", "1000", unit="€"), sel("modo", "L'importo è", [("netto","Senza IVA (imponibile)"),("lordo","Con IVA compresa")])) +
+       row(sel("aliq", "Aliquota", [("22","22% ordinaria"),("10","10% (es. manutenzione su abitazioni)"),("4","4%"),("0","0% / esente")]), f("detr", "Quota di IVA detraibile da chi riceve l'indennizzo", "0", "0 per un privato; 100 per chi detrae tutta l'IVA", unit="%")),
+  formula="<p><code>Da netto: IVA = imponibile × aliquota; totale = imponibile + IVA</code><br><code>Da lordo: imponibile = totale ÷ (1 + aliquota); IVA = totale − imponibile</code><br><code>IVA indennizzabile = IVA × (1 − quota detraibile)</code></p>",
+  spiegazione="<p>Per un privato l'IVA pagata è un costo effettivo e rientra nel danno. Chi può detrarre l'IVA la recupera con la propria contabilità, quindi di norma resta fuori dall'indennizzo. La quota parziale serve per chi detrae solo una parte, ad esempio con il pro-rata.</p>",
+  avvertenze="L'aliquota corretta dipende dal tipo di intervento e di immobile, e la detraibilità dalla posizione fiscale di chi riceve l'indennizzo: verifica con il tuo consulente fiscale. Molte polizze liquidano l'IVA solo dopo la presentazione della fattura.",
+  fonti=[]),
+ dict(slug="superfici", icon="ruler", nome="Calcolatore superfici",
+  h1="Calcolatore superfici di stanze, pareti e soffitti", breve="Pavimento, soffitto, pareti nette e perimetro di ogni stanza.",
+  title="Calcolatore superfici: pavimento, pareti nette, soffitto | StimaVeloce",
+  desc="Calcola pavimento, soffitto, pareti al netto di porte e finestre e perimetro di una o più stanze, per stimare lavorazioni come intonaco, tinteggiatura e pavimenti.",
+  intro="Misura lunghezza, larghezza e altezza di ogni stanza e indica porte e finestre: ottieni le superfici che servono per stimare le lavorazioni.",
+  res_label="Pareti nette totali",
+  form='<div class="lbl">Stanze</div><div class="lines" data-rooms></div><button class="btn btn-s btn-sm" type="button" data-add-room style="justify-self:start">+ Aggiungi stanza</button>' +
+       row(f("porta", "Superficie media di una porta", "1.8", unit="m²"), f("fin", "Superficie media di una finestra", "1.5", unit="m²")),
+  formula="<p><code>Pavimento = soffitto = lunghezza × larghezza</code><br><code>Perimetro = 2 × (lunghezza + larghezza)</code><br><code>Pareti lorde = perimetro × altezza</code><br><code>Pareti nette = pareti lorde − porte × sup. porta − finestre × sup. finestra</code></p>",
+  spiegazione="<p>Le <b>pareti nette</b> servono per intonaci e tinteggiature, il <b>pavimento</b> per massetti e pavimentazioni, il <b>perimetro</b> per zoccolini e battiscopa. Per stanze non rettangolari scomponile in rettangoli e inseriscile come stanze separate.</p>",
+  avvertenze="I capitolati e i prezzari possono prevedere regole di misurazione diverse, ad esempio sul conteggio dei vani inferiori a una certa superficie: in una stima formale si seguono quelle regole.",
+  fonti=[]),
+ dict(slug="quantita", icon="layers", nome="Calcolatore quantità lavorazioni",
+  h1="Calcolatore quantità delle lavorazioni", breve="Dalle superfici alle quantità: mani di pittura, sfridi, massetti, smaltimento.",
+  title="Calcolatore quantità lavorazioni: pittura, massetto, pavimento | StimaVeloce",
+  desc="Trasforma le superfici in quantità di lavorazione: tinteggiatura, intonaco, massetto in metri cubi, pavimento con sfrido, battiscopa e materiale da smaltire.",
+  intro="Parti dalle superfici misurate (anche con il calcolatore superfici) e ottieni le quantità tipiche delle lavorazioni di ripristino.",
+  res_label="Riepilogo quantità",
+  form=row(f("pareti", "Pareti da trattare", "60", unit="m²"), f("soff", "Soffitti da trattare", "20", unit="m²")) +
+       row(f("pav", "Pavimento da rifare", "20", unit="m²"), f("perim", "Perimetro per battiscopa", "18", unit="m")) +
+       row3(f("spess", "Spessore massetto", "5", unit="cm"), f("sfrido", "Sfrido pavimento", "10", unit="%"), f("mani", "Mani di pittura", "2", typ="number", step="1")) +
+       row(f("intonaco", "Intonaco da rifare (porzione danneggiata)", "15", unit="m²"), f("resa", "Resa della pittura", "10", "Metri quadrati per litro per mano, dalla scheda del prodotto", unit="m²/l")),
+  formula="<p><code>Tinteggiatura = (pareti + soffitti) m²</code>; <code>pittura = superficie × mani ÷ resa</code> litri<br><code>Massetto = pavimento × spessore ÷ 100</code> m³<br><code>Pavimento da acquistare = pavimento × (1 + sfrido)</code><br><code>Battiscopa = perimetro</code> m</p>",
+  spiegazione="<p>Le quantità di lavorazione (m², m, m³) sono quelle da moltiplicare per i prezzi unitari. I litri di pittura e il materiale con sfrido servono a chi esegue i lavori e non si sommano ai prezzi unitari, che di norma comprendono già il materiale.</p>",
+  avvertenze="Le rese reali dipendono dal prodotto e dal supporto; lo sfrido cambia con il formato delle piastrelle e la forma della stanza.",
+  fonti=[]),
+]

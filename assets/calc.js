@@ -130,6 +130,51 @@
     return { big: eur(tot), sub: "Permanente " + eur(perm) + " · temporanea " + eur(temp), rows: rows };
   };
 
+
+  C["massimale"] = function (f) {
+    var d = num(f, "danno", 0), m = num(f, "mass", NaN), so = num(f, "sotto", NaN), an = num(f, "annuo", NaN), us = num(f, "usato", 0);
+    var lims = [], rows = [["Danno indennizzabile", eur(d)]];
+    if (!isNaN(m) && m > 0) { lims.push(m); rows.push(["Massimale per sinistro", eur(m)]); }
+    if (!isNaN(so) && so > 0) { lims.push(so); rows.push(["Sottolimite della garanzia", eur(so)]); }
+    if (!isNaN(an) && an > 0) { var res = Math.max(0, an - us); lims.push(res); rows.push(["Massimale annuo residuo (" + eur(an) + " − " + eur(us) + ")", eur(res)]); }
+    var lim = lims.length ? Math.min.apply(null, lims) : Infinity, ind = Math.min(d, lim);
+    if (lims.length) rows.push(["Limite applicabile (il più basso)", eur(lim)]);
+    rows.push(["Importo nei limiti", eur(ind), 1], ["Resta scoperto", eur(Math.max(0, d - ind))]);
+    return { big: eur(ind), sub: d > ind ? "Oltre il limite restano scoperti " + eur(d - ind) : "Il danno rientra nei limiti indicati", rows: rows };
+  };
+
+  C["iva"] = function (f) {
+    var x = num(f, "imp", 0), a = parseFloat(val(f, "aliq")) / 100, det = Math.min(Math.max(num(f, "detr", 0), 0), 100) / 100;
+    var netto = val(f, "modo") === "lordo" ? x / (1 + a) : x, iva = netto * a, lordo = netto + iva, ivaInd = iva * (1 - det);
+    var rows = [["Imponibile", eur(netto)], ["IVA " + PCT.format(a * 100) + "%", eur(iva)], ["Totale con IVA", eur(lordo), 1], ["IVA detraibile (" + PCT.format(det * 100) + "%)", eur(iva * det)], ["IVA indennizzabile", eur(ivaInd), 1], ["Importo indennizzabile (imponibile + IVA indennizzabile)", eur(netto + ivaInd), 1]];
+    return { big: eur(lordo), sub: "Indennizzabile: " + eur(netto + ivaInd), rows: rows };
+  };
+
+  function addRoom(box, d) {
+    d = d || {}; var i = box.children.length, el = document.createElement("div"); el.className = "line"; el.style.gridTemplateColumns = "1.4fr 1fr 1fr 1fr .8fr .8fr 40px";
+    function fld(k, lab, v, wide) { return '<div class="fld' + (wide ? ' wide' : '') + '"><label class="small" for="r' + k + i + '">' + lab + '</label><input class="in" id="r' + k + i + '" data-r="' + k + '" ' + (k === "n" ? "" : 'type="number" min="0" step="any" inputmode="decimal" ') + 'value="' + (v == null ? "" : v) + '"></div>'; }
+    el.innerHTML = fld("n", "Stanza", d.n || ("Stanza " + (i + 1)), 1) + fld("l", "Lungh. m", d.l) + fld("w", "Largh. m", d.w) + fld("h", "Altezza m", d.h) + fld("p", "Porte", d.p) + fld("f", "Finestre", d.f) + '<button type="button" aria-label="Rimuovi stanza" data-del>×</button>';
+    box.appendChild(el);
+  }
+  C["superfici"] = function (f) {
+    var sp = num(f, "porta", 0), sf = num(f, "fin", 0), T = { pav: 0, per: 0, lorde: 0, nette: 0 }, rows = [];
+    f.querySelectorAll("[data-rooms] .line").forEach(function (r) {
+      function g(k) { var v = parseFloat(r.querySelector('[data-r="' + k + '"]').value); return isNaN(v) ? 0 : v; }
+      var n = r.querySelector('[data-r="n"]').value || "Stanza", l = g("l"), w = g("w"), h = g("h"), pav = l * w, per = 2 * (l + w), lor = per * h, net = Math.max(0, lor - g("p") * sp - g("f") * sf);
+      T.pav += pav; T.per += per; T.lorde += lor; T.nette += net;
+      rows.push([esc(n) + ' <span class="muted">pavimento ' + PCT.format(pav) + " m² · pareti nette " + PCT.format(net) + " m²</span>", PCT.format(per) + " m"]);
+    });
+    rows.push(["Pavimento totale (= soffitto)", PCT.format(T.pav) + " m²", 1], ["Pareti lorde", PCT.format(T.lorde) + " m²"], ["Pareti nette", PCT.format(T.nette) + " m²", 1], ["Perimetro totale (battiscopa)", PCT.format(T.per) + " m"]);
+    return { big: PCT.format(T.nette) + " m²", sub: "Pavimento " + PCT.format(T.pav) + " m² · perimetro " + PCT.format(T.per) + " m", rows: rows };
+  };
+
+  C["quantita"] = function (f) {
+    var pa = num(f, "pareti", 0), so = num(f, "soff", 0), pv = num(f, "pav", 0), pe = num(f, "perim", 0), sp = num(f, "spess", 0), sfr = num(f, "sfrido", 0), mani = Math.max(1, Math.round(num(f, "mani", 1))), it = num(f, "intonaco", 0), resa = num(f, "resa", 0);
+    var tint = pa + so, litri = resa > 0 ? tint * mani / resa : 0, mc = pv * sp / 100;
+    var rows = [["Tinteggiatura (pareti + soffitti)", PCT.format(tint) + " m²"], ["Pittura necessaria (" + mani + " mani)", resa > 0 ? PCT.format(Math.ceil(litri)) + " l" : "—"], ["Intonaco da rifare", PCT.format(it) + " m²"], ["Massetto (" + PCT.format(sp) + " cm)", PCT.format(Math.round(mc * 100) / 100) + " m³"], ["Pavimento da posare", PCT.format(pv) + " m²"], ["Pavimento da acquistare (+" + PCT.format(sfr) + "%)", PCT.format(Math.ceil(pv * (1 + sfr / 100))) + " m²"], ["Battiscopa", PCT.format(pe) + " m"]];
+    return { big: PCT.format(tint) + " m²", sub: "da tinteggiare · massetto " + PCT.format(Math.round(mc * 100) / 100) + " m³", rows: rows };
+  };
+
   function run(box) {
     var f = box.querySelector("form"), fn = C[box.getAttribute("data-calc")];
     if (!fn) return;
@@ -150,6 +195,12 @@
       box.querySelector("[data-add]").addEventListener("click", function () { addLine(lb, {}); run(box); });
       lb.addEventListener("click", function (ev) { if (ev.target.hasAttribute("data-del")) { ev.target.parentNode.remove(); run(box); } });
       lb.addEventListener("change", function (ev) { if (ev.target.getAttribute("data-l") === "desc") { var o = ev.target.selectedOptions[0]; var u = ev.target.closest(".line").querySelector('[data-l="u"]'); if (o && u) u.value = o.getAttribute("data-u"); } });
+    }
+    var rb = box.querySelector("[data-rooms]");
+    if (rb) {
+      addRoom(rb, { n: "Soggiorno", l: 5, w: 4, h: 2.7, p: 1, f: 1 }); addRoom(rb, { n: "Corridoio", l: 4, w: 1.2, h: 2.7, p: 3, f: 0 });
+      box.querySelector("[data-add-room]").addEventListener("click", function () { addRoom(rb, { h: 2.7, p: 1, f: 1 }); run(box); });
+      rb.addEventListener("click", function (ev) { if (ev.target.hasAttribute("data-del")) { ev.target.parentNode.remove(); run(box); } });
     }
     box.addEventListener("input", function () { run(box); });
     box.addEventListener("change", function () { run(box); });
