@@ -126,7 +126,7 @@ def footer():
 <div><h4>Servizi</h4><ul>{serv}<li><a href="/servizi/">Tutti i servizi</a></li><li><a href="/prezzi/">Prezzi</a></li></ul></div>
 <div><h4>Guide</h4><ul>{guide}<li><a href="/guide/">Tutte le guide</a></li><li><a href="/strumenti/">Strumenti gratuiti</a></li></ul></div>
 <div><h4>Studio</h4><ul><li><a href="/chi-siamo/">Chi siamo</a></li><li><a href="/come-funziona/">Come funziona</a></li><li><a href="/faq/">Domande frequenti</a></li><li><a href="{APP}#area">Area personale</a></li><li><a href="/privacy/">Privacy Policy</a></li><li><a href="/cookie/">Cookie Policy</a></li><li><a href="/condizioni/">Condizioni generali</a></li></ul></div>
-</div><div class="legal"><span>© 2026 {e(tit)}{piva} · Titolare del servizio: {e(tit)}, {e(SITE["city"])}</span><span>Le informazioni del sito hanno carattere generale e non sostituiscono una valutazione professionale del caso.</span></div></div></footer>'''
+</div><div class="legal"><span>© 2026 StimaVeloce · {e(tit)}{piva}</span><span>Le informazioni del sito hanno carattere generale e non sostituiscono una valutazione professionale del caso.</span></div></div></footer>'''
 
 
 def breadcrumb(items):
@@ -264,7 +264,7 @@ def build_home():
 {band("Hai avuto un sinistro?", "Raccontaci cosa è successo: ti diciamo come possiamo aiutarti, prima di qualsiasi pagamento.", "Scopri quanto vale il tuo danno").replace(APP + "#prefattibilita", "/stima/")}
 <script>(function(){{var h=location.hash;if(/^#[a-z][a-z0-9-]*$/.test(h)&&!document.getElementById(h.slice(1)))location.replace("{APP}"+h);}})();</script>'''
     lb = dict(ORG)
-    lb.update({"@type": "LocalBusiness", "name": "StimaVeloce – " + SITE["studio"], "description": "Perizie e stime danni online a Casoria e Napoli: auto, moto, casa, attività e infortuni.",
+    lb.update({"@type": "LocalBusiness", "vatID": "IT" + SITE["piva"], "legalName": SITE["ragione_sociale"], "name": "StimaVeloce – " + SITE["studio"], "description": "Perizie e stime danni online a Casoria e Napoli: auto, moto, casa, attività e infortuni.",
                "areaServed": [{"@type": "City", "name": "Casoria"}, {"@type": "City", "name": "Napoli"}, {"@type": "AdministrativeArea", "name": "Provincia di Napoli"}],
                "priceRange": "30–250 €"})
     web = {"@context": "https://schema.org", "@type": "WebSite", "name": "StimaVeloce", "url": U + "/", "inLanguage": "it-IT"}

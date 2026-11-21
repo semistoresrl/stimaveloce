@@ -12,8 +12,8 @@ SITE = {
     "telefono": "",
     "whatsapp": "",
     "indirizzo": "",
-    "piva": "[DA INSERIRE]",
-    "ragione_sociale": "",
+    "piva": "04034390783",
+    "ragione_sociale": "Della Vecchia Vincenzo",
     "google_reviews_url": "https://www.google.com/search?q=Studio+Tecnico+Legale+Della+Vecchia+Casoria",
     "ga4_id": "",           # es. G-XXXXXXX: si attiva solo dopo consenso cookie
     "gsc_verification": "", # codice di verifica Google Search Console
