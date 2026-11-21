@@ -1977,7 +1977,7 @@ function sbErr(e){
   return 'Operazione non riuscita. Riprova tra poco.';
 }
 function sbRole(user){
-  return SB.from('profiles').select('role').eq('id', user.id).maybeSingle().then(function(r){ return (r.data && r.data.role) || 'cliente'; }, function(){ return 'cliente'; });
+  return SB.from('profiles').select('role').eq('id', user.id).maybeSingle().then(function(r){ if (r.error) { console.warn(r.error); var e = new Error('__profilo'); e.dettaglio = r.error.message; throw e; } return (r.data && r.data.role) || 'cliente'; });
 }
 function sbPull(){
   if (!SB || !sbUser) return Promise.resolve();
@@ -2299,7 +2299,7 @@ document.addEventListener('submit', function(e){
       sbBusy(f, true);
       SB.auth.signInWithPassword({email:em, password:pw}).then(function(r){ if (r.error) throw r.error; return sbEnter(r.data.user, role); })
         .then(function(){ AU.err = ''; toast('Benvenuto'); render(false); },
-          function(err){ sbBusy(f, false); AU.err = err && err.message === '__staff' ? 'Questo accesso non è abilitato a quest’area.' : sbErr(err); render(true); });
+          function(err){ sbBusy(f, false); AU.err = err && err.message === '__staff' ? 'Questo accesso non è abilitato a quest’area.' : err && err.message === '__profilo' ? 'Non riesco a leggere il profilo dal database (' + (err.dettaglio || 'permessi') + '). Controlla lo schema in Supabase.' : sbErr(err); render(true); });
       return;
     }
     if (!acc || pw !== STAFF_PASS || (role === 'studio' && acc.role !== 'studio')) { AU.err = 'Email o password non corrette.'; render(true); return; }

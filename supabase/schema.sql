@@ -101,6 +101,15 @@ drop policy if exists "pagamenti: lettura" on public.pagamenti;
 create policy "pagamenti: lettura" on public.pagamenti for select
   using (public.ruolo() = 'studio' or lower(email) = lower(auth.jwt() ->> 'email'));
 
--- 4) Dopo aver creato gli accessi dello Studio e dei periti dal sito, assegna i ruoli così:
+-- 4) Permessi per l'API (i nuovi progetti Supabase non li danno più in automatico)
+grant usage on schema public to anon, authenticated, service_role;
+grant select, update on public.profiles to authenticated;
+grant select, insert, update, delete on public.pratiche to authenticated;
+grant select on public.pagamenti to authenticated;
+grant all on public.profiles, public.pratiche, public.pagamenti to service_role;
+grant usage, select on all sequences in schema public to service_role;
+grant execute on function public.ruolo() to authenticated, service_role;
+
+-- 5) Dopo aver creato gli accessi dello Studio e dei periti dal sito, assegna i ruoli così:
 -- update public.profiles set role = 'studio' where email = 'studiotecnicodellavecchia@gmail.com';
 -- update public.profiles set role = 'perito' where email = 'email-del-perito@esempio.it';
