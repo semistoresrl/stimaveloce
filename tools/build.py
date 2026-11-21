@@ -126,7 +126,7 @@ def footer():
 <div><h4>Servizi</h4><ul>{serv}<li><a href="/servizi/">Tutti i servizi</a></li><li><a href="/prezzi/">Prezzi</a></li></ul></div>
 <div><h4>Guide</h4><ul>{guide}<li><a href="/guide/">Tutte le guide</a></li><li><a href="/strumenti/">Strumenti gratuiti</a></li></ul></div>
 <div><h4>Studio</h4><ul><li><a href="/chi-siamo/">Chi siamo</a></li><li><a href="/come-funziona/">Come funziona</a></li><li><a href="/faq/">Domande frequenti</a></li><li><a href="{APP}#area">Area personale</a></li><li><a href="/privacy/">Privacy Policy</a></li><li><a href="/cookie/">Cookie Policy</a></li><li><a href="/condizioni/">Condizioni generali</a></li></ul></div>
-</div><div class="legal"><span>© 2026 StimaVeloce · {e(tit)}{piva}</span><span>Le informazioni del sito hanno carattere generale e non sostituiscono una valutazione professionale del caso.</span></div></div></footer>'''
+</div><div class="legal"><span>© 2026 StimaVeloce · {e(tit)} · Sede legale: {e(SITE["sede_legale"])}{piva} · Regime forfettario</span><span>Le informazioni del sito hanno carattere generale e non sostituiscono una valutazione professionale del caso.</span></div></div></footer>'''
 
 
 def breadcrumb(items):
@@ -172,7 +172,7 @@ def page(path, title, desc, body, cur="", index=True, ld=None, og_type="website"
 
 ORG = {"@context": "https://schema.org", "@type": "ProfessionalService", "@id": U + "/#studio", "name": "StimaVeloce – " + SITE["studio"],
        "url": U + "/", "logo": U + "/icon-512.png", "image": U + "/og-image.jpg", "email": SITE["email"],
-       "address": {"@type": "PostalAddress", "addressLocality": "Casoria", "addressRegion": "NA", "addressCountry": "IT"}, "areaServed": "IT"}
+       "vatID": "IT" + SITE["piva"], "legalName": SITE["ragione_sociale"], "address": {"@type": "PostalAddress", "streetAddress": "Contrada Piano delle Donne", "postalCode": "87021", "addressLocality": "Belvedere Marittimo", "addressRegion": "CS", "addressCountry": "IT"}, "areaServed": ["Casoria", "Napoli", "Campania", "Calabria"]}
 if SITE["telefono"]:
     ORG["telephone"] = SITE["telefono"]
 
@@ -252,7 +252,7 @@ def build_home():
 <p class="trust">{ic("shield-check")}Nessuna promessa di risarcimento: una valutazione tecnica chiara, con prezzi pubblicati.</p>
 </div><div>{illus.hero_scene()}</div></div></section>
 <section class="sec" id="come-funziona"><div class="wrap"><div class="sec-h rv"><div class="eyebrow">Come funziona</div><h2>Quattro passi, tutto online</h2></div><div class="steps">{steps_h}</div></div></section>
-<section class="sec sec-w" id="servizi"><div class="wrap"><div class="sec-h rv"><div class="eyebrow">Stime e perizie</div><h2>Scegli il servizio, il prezzo è chiaro</h2><p class="lead">Prezzi pubblicati, IVA [DA INSERIRE: inclusa o esclusa]. Prima di pagare puoi sempre descrivere il caso gratis.</p></div><div class="svc4">{"".join(cards)}</div>
+<section class="sec sec-w" id="servizi"><div class="wrap"><div class="sec-h rv"><div class="eyebrow">Stime e perizie</div><h2>Scegli il servizio, il prezzo è chiaro</h2><p class="lead">Prezzi finali pubblicati, senza IVA: lo Studio è in regime forfettario. Prima di pagare puoi sempre descrivere il caso gratis.</p></div><div class="svc4">{"".join(cards)}</div>
 <p style="margin-top:22px"><a class="more" href="/prezzi/">Cosa comprende ogni servizio{ic("arrow-right")}</a></p></div></section>
 <section class="sec"><div class="wrap"><div class="fixband rv"><div><div class="eyebrow">Perché noi</div><h2>Prezzo fisso. Il risarcimento resta tuo.</h2><p class="lead">Niente percentuali su quello che ottieni: sai quanto spendi prima di iniziare, e ogni numero della valutazione è spiegato.</p></div><div class="cta-row"><a class="btn btn-p btn-lg" href="/perche-noi/#risparmio">Fai il conto con i tuoi numeri</a><a class="btn btn-s btn-lg" href="/sei-in-tempo/">Sei ancora in tempo?</a></div></div></div></section>
 <section class="sec"><div class="wrap"><div class="sec-h rv"><div class="eyebrow">Gratis</div><h2>Strumenti gratuiti, subito</h2></div><div class="grid g2">{gratis}</div></div></section>
@@ -264,7 +264,7 @@ def build_home():
 {band("Hai avuto un sinistro?", "Raccontaci cosa è successo: ti diciamo come possiamo aiutarti, prima di qualsiasi pagamento.", "Scopri quanto vale il tuo danno").replace(APP + "#prefattibilita", "/stima/")}
 <script>(function(){{var h=location.hash;if(/^#[a-z][a-z0-9-]*$/.test(h)&&!document.getElementById(h.slice(1)))location.replace("{APP}"+h);}})();</script>'''
     lb = dict(ORG)
-    lb.update({"@type": "LocalBusiness", "vatID": "IT" + SITE["piva"], "legalName": SITE["ragione_sociale"], "name": "StimaVeloce – " + SITE["studio"], "description": "Perizie e stime danni online a Casoria e Napoli: auto, moto, casa, attività e infortuni.",
+    lb.update({"@type": "LocalBusiness", "vatID": "IT" + SITE["piva"], "address": {"@type": "PostalAddress", "streetAddress": "Contrada Piano delle Donne", "postalCode": "87021", "addressLocality": "Belvedere Marittimo", "addressRegion": "CS", "addressCountry": "IT"}, "areaServed": ["Casoria", "Napoli"], "legalName": SITE["ragione_sociale"], "name": "StimaVeloce – " + SITE["studio"], "description": "Perizie e stime danni online a Casoria e Napoli: auto, moto, casa, attività e infortuni.",
                "areaServed": [{"@type": "City", "name": "Casoria"}, {"@type": "City", "name": "Napoli"}, {"@type": "AdministrativeArea", "name": "Provincia di Napoli"}],
                "priceRange": "30–250 €"})
     web = {"@context": "https://schema.org", "@type": "WebSite", "name": "StimaVeloce", "url": U + "/", "inLanguage": "it-IT"}

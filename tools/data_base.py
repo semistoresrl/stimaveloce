@@ -14,6 +14,7 @@ SITE = {
     "indirizzo": "",
     "piva": "04034390783",
     "ragione_sociale": "Della Vecchia Vincenzo",
+    "sede_legale": "C.da Piano delle Donne, 87021 Belvedere Marittimo (CS)",
     "google_reviews_url": "https://www.google.com/search?q=Studio+Tecnico+Legale+Della+Vecchia+Casoria",
     "ga4_id": "",           # es. G-XXXXXXX: si attiva solo dopo consenso cookie
     "gsc_verification": "", # codice di verifica Google Search Console
@@ -110,7 +111,8 @@ PREZZI = [
 ]
 
 CONDIZIONI_PAGAMENTO = (
-    "Il pagamento avviene online al momento dell'ordine. Il lavoro inizia quando la documentazione è completa. "
+    "I prezzi indicati sono finali: lo Studio applica il regime forfettario, quindi non viene addebitata l'IVA "
+    "(art. 1, commi 54-89, legge 190/2014). Il pagamento avviene online al momento dell'ordine. Il lavoro inizia quando la documentazione è completa. "
     "Come consumatore hai 14 giorni per recedere (art. 52 Codice del consumo). Se chiedi di iniziare subito, "
     "il recesso non è più possibile una volta che il servizio è stato completamente eseguito con il tuo consenso "
     "(art. 59, lett. a, Codice del consumo); se recedi prima, viene trattenuta solo la parte già svolta."
