@@ -46,8 +46,8 @@ MENU = [("/aiuto/incidenti-stradali/", "car", "Auto e Moto", "Incidenti, carrozz
 STIME = [("/stima/", "sparkles", "Stima senza firma", "stima"), ("/stima/?tipo=auto", "car", "Perizia auto/moto", "perizia"),
          ("/stima/?tipo=casa", "house", "Perizia fabbricati", "fabbricati"), ("/stima/?tipo=persona", "stethoscope", "Valutazione medico-legale", "medico")]
 GRATIS = [("/offerta/", "scale", "Controlla l'offerta della compagnia"), (APP + "#checklist", "list-checks", "Check-list sinistro (PDF)"),
-          (APP + "#incidente", "clipboard-list", "Modulo CAI guidato"), ("/simulatore/", "car", "Simulatore di dinamica")]
-NAV2 = [("/novita/", "Novità"), ("/guide/", "Guide"), ("/strumenti/", "Strumenti"), ("/chi-siamo/", "Chi siamo"), ("/contatti/", "Contatti")]
+          (APP + "#incidente", "clipboard-list", "Modulo CAI guidato"), ("/simulatore/", "car", "Simulatore di dinamica"), ("/sei-in-tempo/", "hourglass", "Sei ancora in tempo?")]
+NAV2 = [("/perche-noi/", "Perché noi"), ("/novita/", "Novità"), ("/guide/", "Guide"), ("/strumenti/", "Strumenti"), ("/chi-siamo/", "Chi siamo"), ("/contatti/", "Contatti")]
 
 
 def _price(i):
@@ -65,6 +65,7 @@ def header(cur):
             f'<a href="/gestione-sinistro/#accessori">{ic("package")}<div><b>Accessori per la pratica<span class="tbd">PREZZI DA DEFINIRE</span></b></div></a>'
             '<h5>Per avvocati e professionisti</h5>'
             f'<a href="/professionisti/">{ic("gavel")}<div><b>Supporto peritale<span class="tbd">PREZZI DA DEFINIRE</span></b></div></a>'
+            f'<a href="/partner/">{ic("handshake")}<div><b>Diventa partner</b><span>Carrozzerie, amministratori, soccorso</span></div></a>'
             '<h5>Novità e curiosità</h5>'
             f'<a href="/novita/">{ic("sparkles")}<div><b>Leggi aggiornate e «Lo sapevi?»</b></div></a>'
             '<h5>Accessi</h5>'
@@ -253,6 +254,7 @@ def build_home():
 <section class="sec" id="come-funziona"><div class="wrap"><div class="sec-h rv"><div class="eyebrow">Come funziona</div><h2>Quattro passi, tutto online</h2></div><div class="steps">{steps_h}</div></div></section>
 <section class="sec sec-w" id="servizi"><div class="wrap"><div class="sec-h rv"><div class="eyebrow">Stime e perizie</div><h2>Scegli il servizio, il prezzo è chiaro</h2><p class="lead">Prezzi pubblicati, IVA [DA INSERIRE: inclusa o esclusa]. Prima di pagare puoi sempre descrivere il caso gratis.</p></div><div class="svc4">{"".join(cards)}</div>
 <p style="margin-top:22px"><a class="more" href="/prezzi/">Cosa comprende ogni servizio{ic("arrow-right")}</a></p></div></section>
+<section class="sec"><div class="wrap"><div class="fixband rv"><div><div class="eyebrow">Perché noi</div><h2>Prezzo fisso. Il risarcimento resta tuo.</h2><p class="lead">Niente percentuali su quello che ottieni: sai quanto spendi prima di iniziare, e ogni numero della valutazione è spiegato.</p></div><div class="cta-row"><a class="btn btn-p btn-lg" href="/perche-noi/#risparmio">Fai il conto con i tuoi numeri</a><a class="btn btn-s btn-lg" href="/sei-in-tempo/">Sei ancora in tempo?</a></div></div></div></section>
 <section class="sec"><div class="wrap"><div class="sec-h rv"><div class="eyebrow">Gratis</div><h2>Strumenti gratuiti, subito</h2></div><div class="grid g2">{gratis}</div></div></section>
 <section class="sec sec-w"><div class="wrap" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:40px;align-items:center"><div class="rv">{sim}</div><div class="rv"><div class="eyebrow">Simulatore di dinamica</div><h2>Disegna l'incidente in un minuto</h2><p class="lead">Trascina auto e moto sulla strada, segna i punti d'urto, le distanze e le velocità. Poi salva l'immagine o stampala.</p><p class="small muted">Schema indicativo, non è una perizia.</p><a class="btn btn-p" href="/simulatore/">Apri il simulatore{ic("arrow-right")}</a></div></div></section>
 <section class="sec"><div class="wrap"><div class="sec-h rv"><div class="eyebrow">Novità e curiosità</div><h2>Lo sapevi?</h2></div><div class="scroller">{sapevi_h}</div><p><a class="more" href="/novita/">Altre curiosità e leggi aggiornate{ic("arrow-right")}</a></p></div></section>
@@ -584,6 +586,7 @@ def build_simulatore():
 
 
 NOVITA = [
+    ("2026-04-08", "Constatazione amichevole anche digitale", "Dall'8 aprile 2026 le compagnie devono permettere di compilare il CAI da smartphone o computer. Perizia e liquidazione restano invariate: per questo conta presentare il danno in modo chiaro.", "Regolamento IVASS sulla constatazione amichevole digitale", "/simulatore/"),
     ("2026-10-13", "Campi Flegrei: piano straordinario per le case danneggiate", "Contributo fino a 30.000 € per i danni lievi delle abitazioni principali sgomberate a Bacoli, Napoli, Pozzuoli e Monte di Procida. Domande entro il 31 dicembre 2026.", "Consiglio dei ministri, 13 ottobre 2026", "/campi-flegrei/"),
     ("2026-03-31", "Polizza catastrofale: obbligo esteso a tutte le imprese", "Con la scadenza del 31 marzo 2026 per turismo, ristorazione e pesca, l'obbligo vale ormai per quasi tutte le imprese. Franchigia massima 15%.", "L. 213/2023 e D.L. 200/2025", "/polizza-catastrofale/"),
     ("2026-04-01", "Danno biologico lieve: aggiornati gli importi", "Dal mese di aprile 2026 il primo punto di invalidità per le lesioni di lieve entità vale 988,45 € e l'inabilità temporanea assoluta 57,64 € al giorno (+2,6%).", "Art. 139 Codice delle assicurazioni, decreto MIMIT 2026", "/strumenti/danno-biologico/"),
@@ -723,5 +726,82 @@ def build_offerta():
          "Hai ricevuto un'offerta di risarcimento dalla compagnia? Sei domande da farti prima di firmare e un controllo gratuito online.",
          body, ld=[bld])
 
+
+# ------------------------------------------------------------------ DIFFERENZIAZIONE (perché noi, sei in tempo, partner)
+def build_perche():
+    head, bld = ph([("/", "Home"), ("", "Perché StimaVeloce")], "Prezzo fisso. Il risarcimento resta tuo.",
+                   "Molti servizi per i sinistri si pagano con una percentuale su quello che ottieni. Noi no: paghi un prezzo pubblicato, deciso prima, e tutto il resto rimane a te.", "Perché noi")
+    rows = [("Come paghi", "Prezzo fisso pubblicato: 30, 60, 130 o 250 €", "Spesso una percentuale di quanto ottieni"),
+            ("Quando sai quanto spendi", "Prima di iniziare", "Solo alla fine, quando conosci l'importo"),
+            ("Chi vede la valutazione", "Tu: ogni voce è spiegata", "Non sempre ti viene mostrata nel dettaglio"),
+            ("Strumenti per capire da solo", "Quiz, simulatore animato, calcolatori, controllo offerta: gratis", "Di solito una chiamata o un modulo"),
+            ("Dove", "Online, dal telefono, quando vuoi", "Spesso in ufficio, negli orari d'apertura")]
+    tr = "".join(f"<tr><td><b>{e(a)}</b></td><td class=\"ok\">{e(b)}</td><td>{e(c)}</td></tr>" for a, b, c in rows)
+    calc = '''<div class="card" id="risparmio" style="padding:26px"><h2 style="font-size:26px;margin-top:0">Fai il conto con i tuoi numeri</h2>
+<p class="muted small">Inserisci l'importo che ti hanno prospettato e la percentuale che ti hanno chiesto. Il calcolo usa solo i tuoi numeri.</p>
+<div class="row2"><div class="fld"><label for="rs-imp">Importo del risarcimento (€)</label><input class="in" id="rs-imp" type="number" min="0" step="100" inputmode="numeric" placeholder="es. 5000"></div>
+<div class="fld"><label for="rs-pct">Percentuale richiesta (%)</label><input class="in" id="rs-pct" type="number" min="0" max="60" step="1" inputmode="numeric" placeholder="es. 20"></div></div>
+<div class="fld"><label for="rs-srv">Nostro servizio</label><select class="in" id="rs-srv"><option value="30">Stima senza firma · 30 €</option><option value="60" selected>Perizia auto/moto · 60 €</option><option value="130">Perizia fabbricati · 130 €</option><option value="250">Valutazione medico-legale · 250 €</option></select></div>
+<div class="rs-out" aria-live="polite"></div>
+<p class="small muted" style="margin:10px 0 0">Il confronto riguarda solo il costo del servizio tecnico. Non promettiamo un importo di risarcimento: lo decide la compagnia o, se serve, un giudice.</p></div>
+<script>(function(){var i=document.getElementById("rs-imp"),p=document.getElementById("rs-pct"),s=document.getElementById("rs-srv"),o=document.querySelector(".rs-out");
+function f(n){return n.toLocaleString("it-IT",{minimumFractionDigits:2,maximumFractionDigits:2})+" €";}
+function go(){var a=+i.value||0,b=+p.value||0,c=+s.value;if(!a||!b){o.innerHTML="";return;}var perc=a*b/100,d=perc-c;
+o.innerHTML='<div class="rs-grid"><div><span>Con la percentuale</span><b>'+f(perc)+'</b></div><div><span>Con StimaVeloce</span><b>'+f(c)+'</b></div><div class="rs-hl"><span>'+(d>0?"Ti restano in più":"Differenza")+'</span><b>'+f(Math.abs(d))+'</b></div></div>';}
+[i,p,s].forEach(function(x){x.addEventListener("input",go);});})();</script>'''
+    body = head + f'''<section class="sec" style="padding-top:40px"><div class="wrap">
+<div class="tbl-w card" style="padding:8px 8px 0"><table class="tbl cmp"><thead><tr><th></th><th>StimaVeloce</th><th>Servizi a percentuale</th></tr></thead><tbody>{tr}</tbody></table></div>
+<p class="small muted" style="margin-top:10px">Confronto con il modello di compenso a percentuale in generale, non con un'azienda specifica. Le condizioni dei singoli operatori possono essere diverse.</p>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:24px;margin-top:40px;align-items:start">{calc}
+<div class="prose"><h2>I nostri impegni</h2><ul class="ticks"><li>Prezzi pubblicati, uguali per tutti</li><li>Ogni numero della valutazione è spiegato</li><li>Nessuna promessa di risarcimento: solo tecnica, chiara</li><li>Atti legali solo con avvocati, lesioni solo con medici legali</li><li>I tuoi dati restano tuoi: niente vendita a terzi</li></ul>
+<a class="btn btn-p btn-lg" href="/stima/">Scopri quanto vale il tuo danno{ic("arrow-right")}</a></div></div>
+</div></section>'''
+    css = '<style>.cmp td.ok{color:#0B1B3A;font-weight:600;background:#EEF3FF}.cmp th:nth-child(2){color:#1F5EFF}.rs-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}.rs-grid div{background:#F7F8FB;border-radius:16px;padding:14px}.rs-grid span{display:block;font-size:13px;color:#4A5672}.rs-grid b{font-size:20px;color:#0B1B3A}.rs-grid .rs-hl{background:#FFF1E6}.rs-grid .rs-hl b{color:#E8650A}@media(max-width:560px){.rs-grid{grid-template-columns:1fr}}</style>'
+    page("/perche-noi/", "Prezzo fisso, niente percentuali sul risarcimento | StimaVeloce",
+         "Perizie e stime a prezzo fisso pubblicato, senza percentuali sul tuo risarcimento. Confronta i costi con i tuoi numeri.", body, ld=[bld], extra_head=css)
+
+
+def build_intempo():
+    head, bld = ph([("/", "Home"), ("/strumenti/", "Strumenti"), ("", "Sei ancora in tempo?")], "Sei ancora in tempo per chiedere il risarcimento?",
+                   "Molti danni non vengono mai chiesti perché si pensa che sia troppo tardi. Inserisci la data e scopri le scadenze indicative.", "Gratis")
+    tool = '''<div class="card" style="padding:26px"><div class="row2"><div class="fld"><label for="it-d">Quando è successo?</label><input class="in" id="it-d" type="date"></div>
+<div class="fld"><label for="it-t">Che tipo di danno?</label><select class="in" id="it-t"><option value="rca">Incidente stradale (verso l'assicurazione di chi ha causato il danno)</option><option value="pol">Danno coperto dalla mia polizza (casa, infortuni, kasko…)</option><option value="civ">Danno causato da altri, non stradale (es. infiltrazione dal vicino)</option></select></div></div>
+<div class="it-out" aria-live="polite"></div></div>
+<script>(function(){var d=document.getElementById("it-d"),t=document.getElementById("it-t"),o=document.querySelector(".it-out");
+var R={rca:[2,"Art. 2947, comma 2, Codice civile: i danni da circolazione dei veicoli si prescrivono in due anni. Se il fatto è anche un reato, il termine può essere più lungo."],
+pol:[2,"Art. 2952 Codice civile: i diritti che derivano dal contratto di assicurazione si prescrivono in due anni. Ricorda anche l'avviso alla compagnia: entro 3 giorni, se la polizza non dice diversamente (art. 1913)."],
+civ:[5,"Art. 2947, comma 1, Codice civile: il risarcimento del danno da fatto illecito si prescrive in cinque anni."]};
+function go(){if(!d.value){o.innerHTML="";return;}var s=new Date(d.value+"T12:00:00"),r=R[t.value],e=new Date(s);e.setFullYear(e.getFullYear()+r[0]);
+var now=new Date(),left=Math.ceil((e-now)/864e5),fmt=e.toLocaleDateString("it-IT",{day:"numeric",month:"long",year:"numeric"});
+var cls=left<0?"late":left<90?"soon":"ok",msg=left<0?"Il termine indicativo è scaduto il "+fmt+". Non arrenderti subito: una richiesta scritta inviata prima può averlo interrotto. Fai verificare il caso.":left<90?"Attenzione: mancano "+left+" giorni. Il termine indicativo scade il "+fmt+".":"Sei in tempo: il termine indicativo scade il "+fmt+" (tra "+left+" giorni).";
+o.innerHTML='<div class="it-res '+cls+'"><b>'+msg+'</b><p>'+r[1]+'</p><p class="small">Una richiesta scritta di risarcimento interrompe la prescrizione e il termine riparte da capo (art. 2943 c.c.). Calcolo indicativo: non è consulenza legale.</p></div><div class="sim-add" style="margin-top:12px"><a class="btn btn-p" href="/stima/">Valuta il tuo danno</a><a class="btn btn-g" href="/contatti/?motivo=stima">Fai una domanda</a></div>';}
+d.max=new Date().toISOString().slice(0,10);[d,t].forEach(function(x){x.addEventListener("input",go);x.addEventListener("change",go);});})();</script>'''
+    body = head + f'''<section class="sec" style="padding-top:36px"><div class="wrap narrow">{tool}
+<div class="prose" style="margin-top:32px"><h2>Perché conta</h2><p>Dopo un sinistro si pensa subito alla riparazione e la richiesta di risarcimento resta indietro. I termini però corrono dal giorno del fatto. Una richiesta scritta, anche semplice, li interrompe.</p>
+<h2>Fonti</h2><ul class="small"><li>Codice civile, artt. 1913, 2943, 2947, 2952</li></ul></div></div></section>'''
+    css = '<style>.it-res{margin-top:16px;border-radius:18px;padding:18px;border:1px solid}.it-res p{margin:8px 0 0}.it-res.ok{background:#EEF8F1;border-color:#BFE3CA}.it-res.soon{background:#FFF4EB;border-color:#FFD5B5}.it-res.late{background:#FDEEF0;border-color:#F4C2CA}</style>'
+    page("/sei-in-tempo/", "Prescrizione risarcimento danni: sei ancora in tempo? | StimaVeloce",
+         "Calcola subito la scadenza indicativa per chiedere il risarcimento: incidente stradale 2 anni, polizza 2 anni, altri danni 5 anni. Gratis.", body, ld=[bld], extra_head=css)
+
+
+def build_partner():
+    head, bld = ph([("/", "Home"), ("", "Diventa partner")], "Diventa partner di StimaVeloce",
+                   "Carrozzerie, amministratori di condominio, soccorso stradale, studi legali: quando un tuo cliente ha un danno, dagli una valutazione tecnica chiara in poche ore di lavoro tuo in meno.", "Partner")
+    tipi = ["Carrozzeria o officina", "Amministratore di condominio", "Soccorso stradale", "Studio legale", "Agenzia immobiliare", "Altro"]
+    opts = "".join(f"<option>{e(t)}</option>" for t in tipi)
+    body = head + f'''<section class="sec" style="padding-top:40px"><div class="wrap layout"><form class="card form" name="partner" method="POST" action="/partner/grazie/" data-netlify="true" netlify-honeypot="bot-field">
+<input type="hidden" name="form-name" value="partner"><p class="sr"><label>Non compilare <input name="bot-field"></label></p>
+<h2 style="font-size:28px;margin:0">Richiedi di diventare partner</h2>
+<div class="row2"><div class="fld"><label for="pa-n">Nome e cognome</label><input class="in" id="pa-n" name="nome" required autocomplete="name"></div><div class="fld"><label for="pa-a">Attività</label><input class="in" id="pa-a" name="attivita" required autocomplete="organization"></div></div>
+<div class="row2"><div class="fld"><label for="pa-e">Email</label><input class="in" id="pa-e" name="email" type="email" required autocomplete="email"></div><div class="fld"><label for="pa-t">Telefono</label><input class="in" id="pa-t" name="telefono" type="tel" autocomplete="tel"></div></div>
+<div class="row2"><div class="fld"><label for="pa-k">Tipo di attività</label><select class="in" id="pa-k" name="tipo">{opts}</select></div><div class="fld"><label for="pa-z">Zona</label><input class="in" id="pa-z" name="zona" placeholder="Es. Casoria, Afragola"></div></div>
+<label class="chk"><input type="checkbox" name="privacy" value="si" required><span>Ho letto l'<a href="/privacy/">informativa privacy</a> e acconsento a essere ricontattato.</span></label>
+<button class="btn btn-p btn-lg" type="submit">Invia la richiesta</button></form>
+<aside class="aside"><div class="card"><h3>Cosa ottieni</h3><ul class="ticks small"><li>Un link e un QR code dedicati per i tuoi clienti</li><li>Clienti seguiti fino alla fine, senza lavoro in più per te</li><li>Materiali pronti: locandina, biglietti, testo per WhatsApp</li></ul><p class="small muted">Condizioni della collaborazione: <span class="tbd-chip">[DA DEFINIRE]</span></p></div></aside></div></section>'''
+    page("/partner/", "Diventa partner: carrozzerie, amministratori, soccorso | StimaVeloce",
+         "Programma partner StimaVeloce per carrozzerie, amministratori di condominio, soccorso stradale e studi legali di Napoli e provincia.", body, ld=[bld])
+    h2, _ = ph([("/", "Home"), ("/partner/", "Partner"), ("", "Richiesta inviata")], "Richiesta inviata", "Grazie: lo Studio ti contatterà per definire la collaborazione.")
+    page("/partner/grazie/", "Richiesta inviata | StimaVeloce", "Richiesta inviata.", h2, index=False)
+
 if __name__ == "__main__":
-    build_home(); build_servizi(); build_casa(); build_strumenti(); build_guide(); build_istituzionali(); build_stima(); build_simulatore(); build_novita(); build_periti(); build_gestione(); build_professionisti(); build_flegrei(); build_catnat(); build_offerta(); build_seo(); build_search()
+    build_home(); build_servizi(); build_casa(); build_strumenti(); build_guide(); build_istituzionali(); build_stima(); build_simulatore(); build_novita(); build_periti(); build_gestione(); build_professionisti(); build_flegrei(); build_catnat(); build_offerta(); build_perche(); build_intempo(); build_partner(); build_seo(); build_search()

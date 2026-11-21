@@ -433,3 +433,8 @@ dialog.wa::backdrop{background:rgba(11,27,58,.45)}
 /* sim v2.1 */
 /* sim v2.2 */
 /* sim v2.3 */
+
+/* v6 fascia prezzo fisso */
+.fixband{display:grid;grid-template-columns:1.3fr 1fr;gap:28px;align-items:center;background:linear-gradient(135deg,#0B1B3A,#1F3F9E);color:#fff;border-radius:28px;padding:40px}
+.fixband h2{color:#fff}.fixband .lead{color:rgba(255,255,255,.85)}.fixband .eyebrow{color:#FFB37A}.fixband .btn-s{background:transparent;color:#fff;border-color:rgba(255,255,255,.5)}
+@media(max-width:820px){.fixband{grid-template-columns:1fr;padding:28px}}
