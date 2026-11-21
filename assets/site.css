@@ -438,3 +438,12 @@ dialog.wa::backdrop{background:rgba(11,27,58,.45)}
 .fixband{display:grid;grid-template-columns:1.3fr 1fr;gap:28px;align-items:center;background:linear-gradient(135deg,#0B1B3A,#1F3F9E);color:#fff;border-radius:28px;padding:40px}
 .fixband h2{color:#fff}.fixband .lead{color:rgba(255,255,255,.85)}.fixband .eyebrow{color:#FFB37A}.fixband .btn-s{background:transparent;color:#fff;border-color:rgba(255,255,255,.5)}
 @media(max-width:820px){.fixband{grid-template-columns:1fr;padding:28px}}
+
+/* v7 schermata di confronto stima/perizia */
+.cmp2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:6px 0 4px}.cmp2.cmp1{grid-template-columns:1fr}
+.cmp-card{display:flex;flex-direction:column;gap:8px;background:#fff;border:1.5px solid #E3E7F0;border-radius:22px;padding:22px;box-shadow:0 6px 18px rgba(11,27,58,.06)}
+.cmp-card p{margin:0;flex:1;color:#4A5672;font-size:15px;line-height:1.55}.cmp-card .btn{margin-top:10px;width:100%}
+.cmp-feat{border-color:#1F5EFF;box-shadow:0 10px 26px rgba(31,94,255,.12)}
+.cmp-tag{font-weight:800;color:#1F5EFF;font-size:14px;text-transform:uppercase;letter-spacing:.06em}.cmp-p{font-size:34px;font-weight:800;color:#0B1B3A;line-height:1}
+.cmp-hint{margin:14px 0 0;padding:14px 16px;border-radius:16px;background:#FFF4EB;color:#0B1B3A;font-size:15px}
+@media(max-width:640px){.cmp2{grid-template-columns:1fr}}

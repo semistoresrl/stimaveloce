@@ -5,8 +5,8 @@ lo script build.py rigenera tutte le pagine."""
 SITE = {
     "url": "https://stimaveloce.netlify.app",
     "name": "StimaVeloce",
-    "studio": "Studio Tecnico Legale Della Vecchia",
-    "city": "Casoria (NA)",
+    "studio": "StimaVeloce",
+    "city": "Online in tutta Italia",
     "email": "studiotecnicodellavecchia@gmail.com",
     # Da completare: lasciare vuoto finché non disponibile (non viene mostrato)
     "telefono": "",
@@ -65,7 +65,7 @@ PREZZI = [
         "extra": "Il sopralluogo, se necessario, viene quotato prima e solo con il tuo consenso.",
     },
     {
-        "id": "fabbricati", "nome": "Perizia fabbricati", "prezzo": 130, "da": False,
+        "id": "fabbricati", "nome": "Perizia fabbricati", "prezzo": 130, "da": False, "vendibile": False,
         "breve": "Relazione tecnica firmata sui danni a casa, condominio o locali, con computo delle lavorazioni.",
         "comprende": ["Analisi di foto, misure, polizza e preventivi", "Computo delle lavorazioni con prezzi di riferimento", "Applicazione delle clausole di polizza", "Relazione tecnica firmata in PDF"],
         "esclude": ["Sopralluogo (preventivo a parte)", "Indagini strumentali (ricerca perdite, termografia)", "Assistenza legale"],
@@ -75,7 +75,7 @@ PREZZI = [
         "extra": "Il sopralluogo, se necessario, viene quotato prima e solo con il tuo consenso.",
     },
     {
-        "id": "medico", "nome": "Valutazione medico-legale", "prezzo": 250, "da": False,
+        "id": "medico", "nome": "Valutazione medico-legale", "prezzo": 250, "da": False, "vendibile": False,
         "breve": "Valutazione delle lesioni a cura di un medico legale, per sinistri con danni alla persona.",
         "comprende": ["Esame della documentazione sanitaria da parte di un medico legale", "Valutazione dei postumi e dell'inabilit\u00e0 temporanea", "Relazione medico-legale firmata dal medico"],
         "esclude": ["Visite specialistiche ed esami strumentali", "Spese mediche", "Assistenza legale"],
@@ -111,7 +111,7 @@ PREZZI = [
 ]
 
 CONDIZIONI_PAGAMENTO = (
-    "I prezzi indicati sono finali: lo Studio applica il regime forfettario, quindi non viene addebitata l'IVA "
+    "I prezzi indicati sono finali: StimaVeloce applica il regime forfettario, quindi non viene addebitata l'IVA "
     "(art. 1, commi 54-89, legge 190/2014). Il pagamento avviene online al momento dell'ordine. Il lavoro inizia quando la documentazione è completa. "
     "Come consumatore hai 14 giorni per recedere (art. 52 Codice del consumo). Se chiedi di iniziare subito, "
     "il recesso non è più possibile una volta che il servizio è stato completamente eseguito con il tuo consenso "

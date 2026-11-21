@@ -44,7 +44,7 @@ MENU = [("/aiuto/incidenti-stradali/", "car", "Auto e Moto", "Incidenti, carrozz
         ("/aiuto/analisi-polizze/", "file-search", "Analisi Polizze", "Garanzie, esclusioni, franchigie, limiti"),
         ("/aiuto/perizie-stime/", "clipboard-check", "Perizie e Consulenze", "Stime, perizie di parte, contestazioni")]
 STIME = [("/stima/", "sparkles", "Stima senza firma", "stima"), ("/stima/?tipo=auto", "car", "Perizia auto/moto", "perizia"),
-         ("/stima/?tipo=casa", "house", "Perizia fabbricati", "fabbricati"), ("/stima/?tipo=persona", "stethoscope", "Valutazione medico-legale", "medico")]
+         ("/contatti/?motivo=consulenza", "house", "Danni alla casa", None), ("/contatti/?motivo=consulenza", "stethoscope", "Lesioni alla persona", None)]
 GRATIS = [("/offerta/", "scale", "Controlla l'offerta della compagnia"), (APP + "#checklist", "list-checks", "Check-list sinistro (PDF)"),
           (APP + "#incidente", "clipboard-list", "Modulo CAI guidato"), ("/simulatore/", "car", "Simulatore di dinamica"), ("/sei-in-tempo/", "hourglass", "Sei ancora in tempo?")]
 NAV2 = [("/perche-noi/", "Perché noi"), ("/novita/", "Novità"), ("/guide/", "Guide"), ("/strumenti/", "Strumenti"), ("/chi-siamo/", "Chi siamo"), ("/contatti/", "Contatti")]
@@ -55,10 +55,9 @@ def _price(i):
 
 
 def header(cur):
-    col1 = "<h5>Stime e perizie</h5>" + "".join(f'<a href="{h}">{ic(i)}<div><b>{t}<span class="price">{_price(k)}</span></b></div></a>' for h, i, t, k in STIME)
+    col1 = "<h5>Stime e perizie</h5>" + "".join(f'<a href="{h}">{ic(i)}<div><b>{t}<span class="price">{_price(k) if k else "Consulenza gratuita"}</span></b></div></a>' for h, i, t, k in STIME)
     col1 += "<h5>Gratis</h5>" + "".join(f'<a href="{h}">{ic(i)}<div><b>{t}</b></div></a>' for h, i, t in GRATIS)
     col2 = ('<h5>In primo piano</h5>'
-            f'<a href="/campi-flegrei/">{ic("triangle-alert")}<div><b>Lesioni da sisma Campi Flegrei</b><span>Contributi: domande entro il 31/12</span></div></a>'
             f'<a href="/polizza-catastrofale/">{ic("shield-check")}<div><b>Polizza catastrofale imprese</b><span>Controlla se ti copre davvero</span></div></a>'
             '<h5>Gestione sinistro</h5>'
             f'<a href="/gestione-sinistro/">{ic("handshake")}<div><b>Affida la pratica a noi</b><span>Seguiamo il sinistro per te</span></div></a>'
@@ -101,7 +100,7 @@ def wa_widget():
         note = ""
     else:
         links = "".join(f'<a href="/contatti/?motivo={k}">{e(t)}{ic("chevron-right")}</a>' for k, t in WA_TOPICS)
-        note = '<p class="small muted" style="margin:0">Il numero WhatsApp dello Studio è in attivazione: per ora scegli l\'argomento e ti rispondiamo dal modulo contatti.</p>'
+        note = '<p class="small muted" style="margin:0">Il numero WhatsApp di StimaVeloce è in attivazione: per ora scegli l\'argomento e ti rispondiamo dal modulo contatti.</p>'
     wa = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.8 11.9 11.9 0 0 0 4.6 4c1.7.7 2.4.8 3.2.7a2.8 2.8 0 0 0 1.8-1.3 2.3 2.3 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3Z"/></svg>'
     return (f'<button class="wa-fab" type="button" data-open-wa aria-label="Scrivici su WhatsApp">{wa}</button>'
             f'<dialog class="wa" data-wa><form method="dialog" style="float:right;margin:0"><button class="sbtn" aria-label="Chiudi">{ic("x")}</button></form>'
@@ -122,7 +121,7 @@ def footer():
     tit = SITE["ragione_sociale"] or SITE["studio"]
     piva = f' · P.IVA {e(SITE["piva"])}' if SITE["piva"] else ""
     return f'''<footer class="ft"><div class="wrap"><div class="cols">
-<div>{logo()}<p style="margin-top:18px;max-width:340px">Analisi tecniche, stime e perizie assicurative a cura dello {e(SITE["studio"])}. Consulenza tecnica sui sinistri: non vendiamo polizze.</p><h4 style="margin-top:26px">Contatti</h4><ul>{"".join(contatti)}</ul></div>
+<div>{logo()}<p style="margin-top:18px;max-width:340px">Stime e perizie sui sinistri, online in tutta Italia. Consulenza tecnica: non vendiamo polizze.</p><h4 style="margin-top:26px">Contatti</h4><ul>{"".join(contatti)}</ul></div>
 <div><h4>Servizi</h4><ul>{serv}<li><a href="/servizi/">Tutti i servizi</a></li><li><a href="/prezzi/">Prezzi</a></li></ul></div>
 <div><h4>Guide</h4><ul>{guide}<li><a href="/guide/">Tutte le guide</a></li><li><a href="/strumenti/">Strumenti gratuiti</a></li></ul></div>
 <div><h4>Studio</h4><ul><li><a href="/chi-siamo/">Chi siamo</a></li><li><a href="/come-funziona/">Come funziona</a></li><li><a href="/faq/">Domande frequenti</a></li><li><a href="{APP}#area">Area personale</a></li><li><a href="/privacy/">Privacy Policy</a></li><li><a href="/cookie/">Cookie Policy</a></li><li><a href="/condizioni/">Condizioni generali</a></li></ul></div>
@@ -170,9 +169,9 @@ def page(path, title, desc, body, cur="", index=True, ld=None, og_type="website"
     TITLES[path] = (title.split(" | ")[0], desc)
 
 
-ORG = {"@context": "https://schema.org", "@type": "ProfessionalService", "@id": U + "/#studio", "name": "StimaVeloce – " + SITE["studio"],
+ORG = {"@context": "https://schema.org", "@type": "ProfessionalService", "@id": U + "/#studio", "name": "StimaVeloce",
        "url": U + "/", "logo": U + "/icon-512.png", "image": U + "/og-image.jpg", "email": SITE["email"],
-       "vatID": "IT" + SITE["piva"], "legalName": SITE["ragione_sociale"], "address": {"@type": "PostalAddress", "streetAddress": "Contrada Piano delle Donne", "postalCode": "87021", "addressLocality": "Belvedere Marittimo", "addressRegion": "CS", "addressCountry": "IT"}, "areaServed": ["Casoria", "Napoli", "Campania", "Calabria"]}
+       "vatID": "IT" + SITE["piva"], "legalName": SITE["ragione_sociale"], "address": {"@type": "PostalAddress", "streetAddress": "Contrada Piano delle Donne", "postalCode": "87021", "addressLocality": "Belvedere Marittimo", "addressRegion": "CS", "addressCountry": "IT"}, "areaServed": {"@type": "Country", "name": "Italia"}}
 if SITE["telefono"]:
     ORG["telephone"] = SITE["telefono"]
 
@@ -206,10 +205,16 @@ def guide_card(g):
     return f'<a class="card" href="/guide/{g["slug"]}/"><span class="tag">{e(g["cat"])}</span><h3 style="margin-top:14px">{e(g["h1"])}</h3><p class="muted small">{e(g["desc"])}</p><span class="more">Leggi la guida{ic("arrow-right")}</span></a>'
 
 
+CONS = "/contatti/?motivo=consulenza"
+
+
 def price_box(ids):
     out = []
     for i in ids:
         p = PV[i]
+        if p.get("vendibile") is False:
+            out.append(f'<div class="card price-box"><div class="muted small">{e(p["nome"])}</div><div class="p" style="font-size:22px">Consulenza gratuita</div><p class="small muted">Valutiamo il caso insieme prima di proporti un servizio.</p><a class="btn btn-s" style="width:100%" href="{CONS}">Chiedi una consulenza gratuita</a></div>')
+            continue
         out.append(f'<div class="card price-box"><div class="muted small">{e(p["nome"])}</div><div class="p">{prezzo_label(p)}</div><p class="small muted">{e(p["tempi"])}.</p>'
                    f'<a class="btn {"btn-p" if p["prezzo"] else "btn-s"}" style="width:100%" href="{APP}#prefattibilita">{"Inizia" if p["prezzo"] else "Chiedi un preventivo"}</a></div>')
     return "".join(out)
@@ -221,14 +226,17 @@ def build_home():
     cards = []
     for k, kind, url, desc in [("stima", "perito", "/stima/", "Prima valutazione da foto e documenti, senza firma. Ideale per capire se vale la pena andare avanti."),
                                ("perizia", "auto", "/stima/?tipo=auto", "Relazione firmata sui danni a auto e moto, con verifica di ricambi, manodopera e valore del mezzo."),
-                               ("fabbricati", "casa", "/stima/?tipo=casa", "Relazione firmata sui danni a casa, condominio o locali, con computo delle lavorazioni."),
-                               ("medico", "medico", "/stima/?tipo=persona", "Valutazione delle lesioni a cura di un medico legale, per sinistri con danni alla persona.")]:
+                               ("fabbricati", "casa", CONS, "Infiltrazioni, crepe, eventi atmosferici: valutiamo il caso insieme e ti diciamo come procedere."),
+                               ("medico", "medico", CONS, "Hai subito lesioni? Ti spieghiamo gratis quali documenti servono e quali sono i passi.")]:
         p = PV[k]
+        if p.get("vendibile") is False:
+            cards.append(f'<a class="card rv" href="{url}">{illus.mini(kind)}<h3 style="margin-top:16px">{e("Danni alla casa" if k == "fabbricati" else "Lesioni alla persona")}</h3><div class="pr" style="font-size:20px">Consulenza gratuita</div><p class="muted small">{e(desc)}</p><span class="btn btn-s btn-sm" style="width:100%">Chiedi una consulenza gratuita</span></a>')
+            continue
         cards.append(f'<a class="card rv" href="{url}">{illus.mini(kind)}<h3 style="margin-top:16px">{e(p["nome"])}</h3><div class="pr">{p["prezzo"]} €</div><p class="muted small">{e(desc)}</p><span class="btn btn-s btn-sm" style="width:100%">Inizia</span></a>')
     gratis = "".join(f'<a class="card tool-card rv" href="{h}"><div class="ibox">{ic(i)}</div><div><h3>{e(t)}</h3><p>Gratis, senza registrazione</p></div></a>' for h, i, t in GRATIS)
     steps = [("Raccontaci cosa è successo", "Poche domande a tocchi, anche dal telefono. Bastano 2 minuti."),
              ("Carica le foto", "Danno, documenti, preventivi: ti diciamo noi cosa serve."),
-             ("Ricevi la valutazione", "Un tecnico dello Studio esamina il caso e ti propone il servizio giusto."),
+             ("Ricevi la valutazione", "Un tecnico esamina il caso e ti propone il servizio giusto."),
              ("Segui la pratica", "Stato, documenti e messaggi nella tua area clienti.")]
     steps_h = "".join(f'<div class="step rv rv-d{i % 4}"><div class="n">{i + 1}</div><h3>{e(t)}</h3><p>{e(d)}</p></div>' for i, (t, d) in enumerate(steps))
     sapevi = [("Con il modulo CAI firmato da entrambi i conducenti, la compagnia ha 30 giorni invece di 60 per fare l'offerta sui danni alle cose.", "Art. 148 Codice delle assicurazioni"),
@@ -244,32 +252,30 @@ def build_home():
            '<text x="120" y="112" font-family="Inter,sans-serif" font-size="14" font-weight="700" fill="#0B1B3A">A · 40 km/h</text><text x="296" y="262" font-family="Inter,sans-serif" font-size="14" font-weight="700" fill="#0B1B3A">B · 30 km/h</text></svg>')
     fq, fqld = faq_html(HOME_FAQ)
     body = f'''<section class="hero"><div class="wrap"><div>
-<div class="eyebrow">Studio Della Vecchia · Casoria e Napoli</div>
+<div class="eyebrow">Perizie e stime online · in tutta Italia</div>
 <h1>Hai avuto un <span>sinistro?</span></h1>
 <p class="lead">Ti aiutiamo a capire quanto vale davvero il tuo danno, con calma e senza burocrazia. Perizie e stime online, seguite da tecnici veri.</p>
 <div class="cta-row"><a class="btn btn-p btn-lg" href="/stima/">Scopri quanto vale il tuo danno{ic("arrow-right")}</a><a class="btn btn-s btn-lg" href="/offerta/">Ho già un'offerta</a></div>
-<div class="doors"><a href="/campi-flegrei/">{ic("triangle-alert")}<span><b>Lesioni da sisma?</b>Campi Flegrei: domande entro il 31/12</span></a><a href="/polizza-catastrofale/">{ic("shield-check")}<span><b>Hai un'azienda?</b>Controlla la polizza catastrofale</span></a></div>
+<div class="doors"><a href="/sei-in-tempo/">{ic("hourglass")}<span><b>Sinistro di mesi fa?</b>Scopri se sei ancora in tempo</span></a><a href="/polizza-catastrofale/">{ic("shield-check")}<span><b>Hai un'azienda?</b>Controlla la polizza catastrofale</span></a></div>
 <p class="trust">{ic("shield-check")}Nessuna promessa di risarcimento: una valutazione tecnica chiara, con prezzi pubblicati.</p>
 </div><div>{illus.hero_scene()}</div></div></section>
 <section class="sec" id="come-funziona"><div class="wrap"><div class="sec-h rv"><div class="eyebrow">Come funziona</div><h2>Quattro passi, tutto online</h2></div><div class="steps">{steps_h}</div></div></section>
-<section class="sec sec-w" id="servizi"><div class="wrap"><div class="sec-h rv"><div class="eyebrow">Stime e perizie</div><h2>Scegli il servizio, il prezzo è chiaro</h2><p class="lead">Prezzi finali pubblicati, senza IVA: lo Studio è in regime forfettario. Prima di pagare puoi sempre descrivere il caso gratis.</p></div><div class="svc4">{"".join(cards)}</div>
+<section class="sec sec-w" id="servizi"><div class="wrap"><div class="sec-h rv"><div class="eyebrow">Stime e perizie</div><h2>Scegli il servizio, il prezzo è chiaro</h2><p class="lead">Prezzi finali pubblicati, senza IVA: StimaVeloce è in regime forfettario. Prima di pagare puoi sempre descrivere il caso gratis.</p></div><div class="svc4">{"".join(cards)}</div>
 <p style="margin-top:22px"><a class="more" href="/prezzi/">Cosa comprende ogni servizio{ic("arrow-right")}</a></p></div></section>
 <section class="sec"><div class="wrap"><div class="fixband rv"><div><div class="eyebrow">Perché noi</div><h2>Stime e perizie a prezzo fisso.</h2><p class="lead">Niente percentuali sulla valutazione: sai quanto spendi prima di iniziare, e ogni numero è spiegato.</p></div><div class="cta-row"><a class="btn btn-p btn-lg" href="/perche-noi/#risparmio">Fai il conto con i tuoi numeri</a><a class="btn btn-s btn-lg" href="/sei-in-tempo/">Sei ancora in tempo?</a></div></div></div></section>
 <section class="sec"><div class="wrap"><div class="sec-h rv"><div class="eyebrow">Gratis</div><h2>Strumenti gratuiti, subito</h2></div><div class="grid g2">{gratis}</div></div></section>
 <section class="sec sec-w"><div class="wrap" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:40px;align-items:center"><div class="rv">{sim}</div><div class="rv"><div class="eyebrow">Simulatore di dinamica</div><h2>Disegna l'incidente in un minuto</h2><p class="lead">Trascina auto e moto sulla strada, segna i punti d'urto, le distanze e le velocità. Poi salva l'immagine o stampala.</p><p class="small muted">Schema indicativo, non è una perizia.</p><a class="btn btn-p" href="/simulatore/">Apri il simulatore{ic("arrow-right")}</a></div></div></section>
 <section class="sec"><div class="wrap"><div class="sec-h rv"><div class="eyebrow">Novità e curiosità</div><h2>Lo sapevi?</h2></div><div class="scroller">{sapevi_h}</div><p><a class="more" href="/novita/">Altre curiosità e leggi aggiornate{ic("arrow-right")}</a></p></div></section>
 <section class="sec sec-w" id="segui"><div class="wrap narrow"><div class="card rv" style="padding:36px"><div class="eyebrow">Segui la tua pratica</div><h2 style="font-size:32px">Dov'è arrivata la mia pratica?</h2><p class="muted">Accedi con la tua email: trovi lo stato, i documenti e i messaggi del perito.</p><a class="btn btn-p" href="{APP}#area">Accedi all'area clienti{ic("arrow-right")}</a></div></div></section>
-<section class="sec" id="chi-siamo"><div class="wrap" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:40px;align-items:center"><div class="rv"><div class="eyebrow">Chi siamo</div><h2>Uno studio tecnico di Casoria, online per te</h2><p class="lead">StimaVeloce è il servizio digitale dello {e(SITE["studio"])}. Seguiamo sinistri auto, moto, casa e attività a Casoria, Napoli e provincia, e online in tutta Italia.</p><a class="btn btn-s" href="/chi-siamo/">Conosci lo Studio</a></div><div class="rv"><svg class="ill" viewBox="0 0 300 200" aria-hidden="true"><rect width="300" height="200" rx="24" fill="#EEF3FF"/>{illus.perito(110, 10, .95)}</svg></div></div></section>
+<section class="sec" id="chi-siamo"><div class="wrap" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:40px;align-items:center"><div class="rv"><div class="eyebrow">Chi siamo</div><h2>Tecnici veri, ovunque tu sia</h2><p class="lead">StimaVeloce è un servizio online di stime e perizie sui sinistri. Lavoriamo su foto e documenti, quindi possiamo seguirti in tutta Italia, dal telefono.</p><a class="btn btn-s" href="/chi-siamo/">Chi siamo</a></div><div class="rv"><svg class="ill" viewBox="0 0 300 200" aria-hidden="true"><rect width="300" height="200" rx="24" fill="#EEF3FF"/>{illus.perito(110, 10, .95)}</svg></div></div></section>
 <section class="sec sec-w"><div class="wrap narrow"><div class="sec-h rv"><div class="eyebrow">Domande frequenti</div><h2>Le risposte più comuni</h2></div>{fq}<p style="margin-top:24px"><a class="more" href="/faq/">Tutte le domande{ic("arrow-right")}</a></p></div></section>
 {band("Hai avuto un sinistro?", "Raccontaci cosa è successo: ti diciamo come possiamo aiutarti, prima di qualsiasi pagamento.", "Scopri quanto vale il tuo danno").replace(APP + "#prefattibilita", "/stima/")}
 <script>(function(){{var h=location.hash;if(/^#[a-z][a-z0-9-]*$/.test(h)&&!document.getElementById(h.slice(1)))location.replace("{APP}"+h);}})();</script>'''
     lb = dict(ORG)
-    lb.update({"@type": "LocalBusiness", "vatID": "IT" + SITE["piva"], "address": {"@type": "PostalAddress", "streetAddress": "Contrada Piano delle Donne", "postalCode": "87021", "addressLocality": "Belvedere Marittimo", "addressRegion": "CS", "addressCountry": "IT"}, "areaServed": ["Casoria", "Napoli"], "legalName": SITE["ragione_sociale"], "name": "StimaVeloce – " + SITE["studio"], "description": "Perizie e stime danni online a Casoria e Napoli: auto, moto, casa, attività e infortuni.",
-               "areaServed": [{"@type": "City", "name": "Casoria"}, {"@type": "City", "name": "Napoli"}, {"@type": "AdministrativeArea", "name": "Provincia di Napoli"}],
-               "priceRange": "30–250 €"})
+    lb.update({"@type": "ProfessionalService", "description": "Perizie e stime danni online in tutta Italia: auto, moto, casa, attività. Stima senza firma 30 €, perizia auto/moto 60 €.", "areaServed": {"@type": "Country", "name": "Italia"}, "priceRange": "30–60 €"})
     web = {"@context": "https://schema.org", "@type": "WebSite", "name": "StimaVeloce", "url": U + "/", "inLanguage": "it-IT"}
-    page("/", "Perizia danni online a Casoria e Napoli | StimaVeloce",
-         "Perizie e stime danni online a Casoria e Napoli: auto, moto, casa e infortuni. Stima senza firma 30 €, perizia auto/moto 60 €, fabbricati 130 €. Strumenti gratuiti.",
+    page("/", "Perizia danni online in tutta Italia | StimaVeloce",
+         "Stime e perizie danni online, in tutta Italia: stima senza firma 30 €, perizia auto/moto 60 €. Consulenza gratuita per casa e lesioni. Strumenti gratuiti.",
          body, cur="/", ld=[lb, web, fqld])
 
 
@@ -347,7 +353,18 @@ def build_strumenti():
                "offers": {"@type": "Offer", "price": 0, "priceCurrency": "EUR"}, "url": f'{U}/strumenti/{t["slug"]}/'}
         page(f'/strumenti/{t["slug"]}/', t["title"], t["desc"], body, cur="/strumenti/", ld=[bld, app], scripts=f'<script src="/assets/calc.js?v={CSSV}" defer></script>')
     head, bld = ph([("/", "Home"), ("", "Strumenti gratuiti")], "Strumenti gratuiti", "Calcolatori tecnici per farti un'idea del danno e di come la polizza lo tratta. Ogni strumento mostra formula, criteri e avvertenze.", "Strumenti")
-    body = f'{head}<section class="sec" style="padding-top:48px"><div class="wrap"><div class="grid g2">{"".join(tool_card(t) for t in STRUMENTI)}</div></div></section>{band()}'
+    scan = (f'<a class="card tool-card" href="/strumenti/scanner-foto/" style="border:1.5px dashed #1F5EFF"><div class="ibox">{ic("camera")}</div><div><h3>Scanner foto danni <span class="tbd-chip" style="background:#FFF1E6;color:#E8650A">In arrivo</span></h3>'
+            '<p>Fotografi il danno e ricevi un primo elenco delle parti coinvolte. Lascia l\'email: ti avvisiamo quando è pronto.</p></div></a>')
+    body = f'{head}<section class="sec" style="padding-top:48px"><div class="wrap"><div class="grid g2">{scan}{"".join(tool_card(t) for t in STRUMENTI)}</div></div></section>{band()}'
+    h2, b2 = ph([("/", "Home"), ("/strumenti/", "Strumenti"), ("", "Scanner foto danni")], "Scanner foto danni", "Fotografi il danno e ricevi un primo elenco delle parti coinvolte e delle foto che mancano. Lo stiamo preparando.", "In arrivo")
+    page("/strumenti/scanner-foto/", "Scanner foto danni: in arrivo | StimaVeloce", "Lo scanner foto danni di StimaVeloce è in arrivo. Lascia la tua email e ti avvisiamo quando è pronto.",
+         h2 + f'''<section class="sec" style="padding-top:40px"><div class="wrap narrow"><form class="card form" name="avvisami" method="POST" action="/strumenti/scanner-foto/grazie/" data-netlify="true" netlify-honeypot="bot-field">
+<input type="hidden" name="form-name" value="avvisami"><input type="hidden" name="strumento" value="scanner-foto"><p class="sr"><label>Non compilare <input name="bot-field"></label></p>
+<h2 style="font-size:26px;margin:0">Avvisami quando è pronto</h2><div class="fld"><label for="av-e">La tua email</label><input class="in" id="av-e" name="email" type="email" required autocomplete="email" placeholder="nome@esempio.it"></div>
+<label class="chk"><input type="checkbox" name="privacy" value="si" required><span>Acconsento a ricevere una sola email quando lo strumento sarà disponibile (<a href="/privacy/">informativa</a>).</span></label>
+<button class="btn btn-p btn-lg" type="submit">Avvisami</button></form><p class="small muted" style="margin-top:14px">Nel frattempo puoi <a href="/stima/">iniziare dalla stima</a> o usare gli <a href="/strumenti/">altri strumenti gratuiti</a>.</p></div></section>''', ld=[b2])
+    h3, _ = ph([("/", "Home"), ("/strumenti/", "Strumenti"), ("", "Fatto")], "Ti avviseremo", "Grazie: riceverai un'email appena lo scanner foto danni sarà disponibile.")
+    page("/strumenti/scanner-foto/grazie/", "Ti avviseremo | StimaVeloce", "Iscrizione ricevuta.", h3, index=False)
     page("/strumenti/", "Calcolatori gratuiti: franchigia, scoperto, vetustà, danni | StimaVeloce", "Calcolatori gratuiti con formule verificabili: danni al fabbricato, franchigia e scoperto, sottoassicurazione, vetustà, danno biologico orientativo, preventivo lavori.", body, cur="/strumenti/", ld=[bld])
 
 
@@ -383,7 +400,7 @@ def build_istituzionali():
     body = f'''{head}<section class="sec" style="padding-top:48px"><div class="wrap layout"><div class="prose">
 <h2>1. Raccontaci cosa è successo</h2><p>Il percorso guidato ti chiede che tipo di danno hai subito e poi solo le domande pertinenti al tuo caso. Si compila a tocchi, anche dal telefono, in pochi minuti. È gratuito e senza impegno.</p>
 <h2>2. Carica fotografie e documenti</h2><p>Foto del danno, polizza, preventivi, lettere della compagnia. Se manca qualcosa te lo segnaliamo noi.</p>
-<h2>3. Ricevi una valutazione professionale</h2><p>Un tecnico dello Studio esamina la richiesta e ti indica il servizio più adatto con il suo prezzo. Nessun pagamento prima di sapere cosa riceverai.</p>
+<h2>3. Ricevi una valutazione professionale</h2><p>Un tecnico di StimaVeloce esamina la richiesta e ti indica il servizio più adatto con il suo prezzo. Nessun pagamento prima di sapere cosa riceverai.</p>
 <h2>4. Segui la pratica dalla tua area personale</h2><p>Ogni pratica ha un codice univoco. Nell'area personale vedi lo stato, carichi altri documenti, scarichi la relazione e ricevi le comunicazioni.</p>
 <div class="box"><h3 style="margin-top:0">Gli stati della pratica</h3><ol class="olist">{"".join(f"<li>{e(s)}</li>" for s in stati)}</ol></div>
 <h2>Cosa non facciamo</h2><p>Non vendiamo polizze, non garantiamo risarcimenti e non diamo pareri legali. Ci occupiamo della parte tecnica: documentare e quantificare il danno e leggere la polizza.</p>
@@ -392,29 +409,30 @@ def build_istituzionali():
              "step": [{"@type": "HowToStep", "position": i + 1, "name": n} for i, n in enumerate(["Racconta cosa è successo", "Carica fotografie e documenti", "Ricevi una valutazione professionale", "Segui la pratica dall'area personale"])]}
     page("/come-funziona/", "Come funziona: valutazione del danno online in 4 passaggi | StimaVeloce", "Racconti il sinistro, carichi foto e documenti, ricevi una valutazione professionale e segui la pratica online. Ecco come funziona StimaVeloce.", body, cur="/come-funziona/", ld=[bld, howto])
     # chi siamo
-    head, bld = ph([("/", "Home"), ("", "Chi siamo")], "Chi siamo", f"StimaVeloce è il servizio digitale dello {SITE['studio']}, a {SITE['city']}.", "Lo Studio")
+    head, bld = ph([("/", "Home"), ("", "Chi siamo")], "Chi siamo", "StimaVeloce porta online stime e perizie sui sinistri: tecnici veri, prezzi chiari, in tutta Italia.", "Chi siamo")
     body = f'''{head}<section class="sec" style="padding-top:48px"><div class="wrap layout"><div class="prose">
-<h2>Lo Studio</h2><p>Lo {e(SITE["studio"])} si occupa di consulenza tecnica sui sinistri: stime dei danni, perizie di parte, analisi di polizze e preventivi. StimaVeloce porta questo lavoro online, per renderlo più rapido, più trasparente e accessibile a chiunque.</p>
+<h2>Cosa facciamo</h2><p>StimaVeloce si occupa di consulenza tecnica sui sinistri: stime dei danni, perizie di parte, analisi di polizze e preventivi. Lavoriamo online, su foto e documenti, per rendere tutto più rapido, più trasparente e accessibile a chiunque, in tutta Italia.</p>
 <h2>Il nostro metodo</h2><ul class="ticks"><li>Valutazioni tecniche documentate, in cui ogni numero è spiegato</li><li>Riferimento puntuale a clausole, pagine e voci di danno</li><li>Prezzi pubblicati e preventivi scritti prima di ogni attività aggiuntiva</li><li>Nessuna promessa di risultato: la decisione sull'indennizzo spetta alla compagnia</li></ul>
 <h2>Tecnologia al servizio del professionista</h2><p>Usiamo strumenti digitali per organizzare documenti e foto e per velocizzare il lavoro ripetitivo. Le valutazioni restano sempre di un tecnico, che le verifica e le firma.</p>
 <h2>Chi firma le perizie</h2><div class="card" style="display:flex;gap:18px;align-items:center;margin:0 0 24px"><div class="ibox" style="width:72px;height:72px;flex:none">{ic("user")}</div><div><b>[DA INSERIRE: nome e titolo del tecnico]</b><p class="small muted" style="margin:4px 0 0">Iscrizione all'albo o al ruolo periti IVASS: [DA INSERIRE] · Foto: [DA INSERIRE]</p></div></div><p>Ogni perizia riporta nome, qualifica e firma del professionista che l'ha redatta.</p>
 <h2>Indipendenza</h2><p>Non vendiamo polizze e non lavoriamo per conto delle compagnie nei casi che seguiamo per i nostri clienti.</p>
 </div><aside class="aside"><div class="card"><h3>Contatti</h3><p class="small"><a href="mailto:{SITE["email"]}">{e(SITE["email"])}</a><br>{e(SITE["city"])}</p><a class="btn btn-s" style="width:100%" href="/contatti/">Scrivici</a></div></aside></div></section>{band()}'''
-    page("/chi-siamo/", f"Chi siamo – {SITE['studio']} | StimaVeloce", f"StimaVeloce è il servizio online dello {SITE['studio']}: consulenza tecnica sui sinistri, stime e perizie di parte.", body, cur="/chi-siamo/", ld=[bld, ORG])
+    page("/chi-siamo/", "Chi siamo | StimaVeloce", "StimaVeloce: consulenza tecnica sui sinistri, stime e perizie di parte online, in tutta Italia.", body, cur="/chi-siamo/", ld=[bld, ORG])
     # prezzi
     head, bld = ph([("/", "Home"), ("", "Prezzi")], "Servizi e prezzi", "Prezzi chiari prima di iniziare. Per le attività su preventivo ricevi l'importo per iscritto prima di qualsiasi lavoro.", "Prezzi")
     cards = ""
-    for p in PREZZI:
+    for p in [x for x in PREZZI if x.get("vendibile") is not False]:
         cards += f'''<div class="card pcard{" feat-p" if p["id"] == "perizia" else ""}"><h3>{e(p["nome"])}</h3><p class="muted small" style="margin:0">{e(p["breve"])}</p><div class="p">{prezzo_label(p)}</div>
 <h4>Comprende</h4><ul class="ticks">{"".join(f"<li>{e(x)}</li>" for x in p["comprende"])}</ul><h4>Non comprende</h4><ul class="ticks x">{"".join(f"<li>{e(x)}</li>" for x in p["esclude"])}</ul>
 <h4>Dettagli</h4><p class="dl"><b>Documenti:</b> {e(", ".join(p["documenti"]))}</p><p class="dl"><b>Tempi indicativi:</b> {e(p["tempi"])}</p><p class="dl"><b>Consegna:</b> {e(p["formato"])}</p><p class="dl" style="margin-bottom:20px"><b>Costi aggiuntivi:</b> {e(p["extra"])}</p>
 <a class="btn {"btn-p" if p["prezzo"] else "btn-s"}" href="{APP}#prefattibilita">{"Inizia" if p["prezzo"] else "Chiedi un preventivo"}</a></div>'''
     body = f'''{head}<section class="sec" style="padding-top:48px"><div class="wrap"><div class="prices">{cards}</div>
-<div class="card" style="margin-top:32px"><h3>Pagamento e cancellazione</h3><p class="muted" style="margin:0">{e(CONDIZIONI_PAGAMENTO)}</p></div>
+<div class="card" style="margin-top:32px;display:flex;gap:18px;flex-wrap:wrap;align-items:center;justify-content:space-between"><div><h3 style="margin:0">Danni alla casa o lesioni alla persona?</h3><p class="muted" style="margin:6px 0 0">Per ora li seguiamo con una consulenza gratuita: valutiamo il caso insieme e ti diciamo come procedere.</p></div><a class="btn btn-s" href="{CONS}">Chiedi una consulenza gratuita</a></div>
+<div class="card" style="margin-top:20px"><h3>Pagamento e cancellazione</h3><p class="muted" style="margin:0">{e(CONDIZIONI_PAGAMENTO)}</p></div>
 <p class="small muted" style="margin-top:16px">Prima di pagare puoi sempre descrivere il caso gratuitamente: ti indichiamo il servizio adatto. <a href="/condizioni/">Condizioni generali</a>.</p></div></section>{band()}'''
     offers = {"@context": "https://schema.org", "@type": "OfferCatalog", "name": "Servizi StimaVeloce", "itemListElement": [
-        {"@type": "Offer", "name": p["nome"], "price": p["prezzo"], "priceCurrency": "EUR"} for p in PREZZI if p["prezzo"]]}
-    page("/prezzi/", "Prezzi: stima 30 €, perizia auto/moto 60 €, fabbricati 130 € | StimaVeloce", "Prezzi dei servizi StimaVeloce: stima senza firma 30 €, perizia auto/moto 60 €, perizia fabbricati 130 €, valutazione medico-legale 250 €, analisi documentale e consulenze su preventivo. Cosa comprendono e condizioni.", body, ld=[bld, offers])
+        {"@type": "Offer", "name": p["nome"], "price": p["prezzo"], "priceCurrency": "EUR"} for p in PREZZI if p["prezzo"] and p.get("vendibile") is not False]}
+    page("/prezzi/", "Prezzi: stima 30 €, perizia auto/moto 60 € | StimaVeloce", "Prezzi dei servizi StimaVeloce: stima senza firma 30 €, perizia auto/moto 60 €. Consulenza gratuita per danni alla casa e lesioni. Cosa comprendono e condizioni.", body, ld=[bld, offers])
     # faq
     head, bld = ph([("/", "Home"), ("", "Domande frequenti")], "Domande frequenti", "Risposte brevi e chiare su servizi, costi, documenti e tempi.", "FAQ")
     blocks = ""
@@ -432,13 +450,13 @@ def build_istituzionali():
     body = f'''{head}<section class="sec" style="padding-top:48px"><div class="wrap layout"><form class="card form" name="contatto" method="POST" action="/contatti/grazie/" data-netlify="true" netlify-honeypot="bot-field">
 <input type="hidden" name="form-name" value="contatto"><p class="sr"><label>Non compilare <input name="bot-field"></label></p>
 <div class="row2"><div class="fld"><label for="c-nome">Nome e cognome</label><input class="in" id="c-nome" name="nome" required autocomplete="name"></div><div class="fld"><label for="c-email">Email</label><input class="in" id="c-email" name="email" type="email" required autocomplete="email"></div></div>
-<div class="row2"><div class="fld"><label for="c-tel">Telefono <span class="muted">(facoltativo)</span></label><input class="in" id="c-tel" name="telefono" type="tel" autocomplete="tel"></div><div class="fld"><label for="c-mot">Argomento</label><select class="in" id="c-mot" name="motivo"><option value="stima">Vorrei una stima del danno</option><option value="perizia">Vorrei una perizia</option><option value="pratica">Stato della mia pratica</option><option value="offerta">Ho ricevuto un'offerta dalla compagnia</option><option value="avvocati">Sono un avvocato o un professionista</option><option value="altro">Altro</option></select></div></div>
+<div class="row2"><div class="fld"><label for="c-tel">Telefono <span class="muted">(facoltativo)</span></label><input class="in" id="c-tel" name="telefono" type="tel" autocomplete="tel"></div><div class="fld"><label for="c-mot">Argomento</label><select class="in" id="c-mot" name="motivo"><option value="consulenza">Consulenza gratuita (casa, lesioni, altro)</option><option value="stima">Vorrei una stima del danno</option><option value="perizia">Vorrei una perizia</option><option value="pratica">Stato della mia pratica</option><option value="offerta">Ho ricevuto un'offerta dalla compagnia</option><option value="avvocati">Sono un avvocato o un professionista</option><option value="altro">Altro</option></select></div></div>
 <div class="fld"><label for="c-msg">Messaggio</label><textarea class="in" id="c-msg" name="messaggio" required></textarea></div>
 <label class="chk"><input type="checkbox" name="privacy" value="si" required><span>Ho letto l'<a href="/privacy/">informativa privacy</a> e acconsento al trattamento dei dati per ricevere risposta.</span></label>
 <button class="btn btn-p btn-lg" type="submit">Invia messaggio</button></form>
 <aside class="aside"><div class="card"><h3>Vuoi aprire una pratica?</h3><p class="muted small">Il percorso guidato raccoglie già tutte le informazioni utili.</p><a class="btn btn-p" style="width:100%" href="{APP}#prefattibilita">Analizza il tuo sinistro</a></div>
 <div class="card"><h3 style="font-size:17px">Recapiti</h3><p>{ic("mail")} <a href="mailto:{SITE["email"]}">{e(SITE["email"])}</a></p>{tel}<p style="margin:0">{ic("map-pin")} {e(SITE["indirizzo"] or SITE["city"])}</p></div></aside></div></section>'''
-    page("/contatti/", "Contatti | StimaVeloce – Studio Della Vecchia", "Scrivi allo Studio per informazioni sui servizi, preventivi e pratiche già aperte.", body, ld=[bld, ORG])
+    page("/contatti/", "Contatti | StimaVeloce", "Scrivici per informazioni sui servizi, preventivi e pratiche già aperte.", body, ld=[bld, ORG])
     head, bld = ph([("/", "Home"), ("/contatti/", "Contatti"), ("", "Messaggio inviato")], "Messaggio inviato", "Grazie, ti risponderemo il prima possibile all'indirizzo email indicato.")
     page("/contatti/grazie/", "Messaggio inviato | StimaVeloce", "Messaggio inviato.", head + f'<section class="sec"><div class="wrap"><a class="btn btn-p" href="/">Torna alla home</a></div></section>', index=False)
     # legali
@@ -551,7 +569,7 @@ def build_simulatore():
 <div class="sp"><div class="sp-h"><span>2</span>Dove è successo</div>
 <div class="row2"><select class="in" id="sim-road" aria-label="Tipo di strada"><option value="incrocio">Incrocio</option><option value="dritta">Rettilineo</option><option value="rotonda">Rotatoria</option><option value="parcheggio">Parcheggio</option><option value="mappa">🗺 Mappa reale</option></select>
 <select class="in" id="sim-surf" aria-label="Fondo stradale"><option value="asciutto">Asfalto asciutto</option><option value="bagnato">Asfalto bagnato</option><option value="ghiaccio">Ghiaccio o neve</option></select></div>
-<div class="sim-map" hidden><div class="row2" style="grid-template-columns:1fr auto"><input class="in" id="sim-addr" placeholder="Via e comune, es. Via Roma, Casoria" autocomplete="street-address"><button type="button" class="btn btn-s btn-sm" data-find>Cerca</button></div>
+<div class="sim-map" hidden><div class="row2" style="grid-template-columns:1fr auto"><input class="in" id="sim-addr" placeholder="Via e comune, es. Via Roma 1, Bologna" autocomplete="street-address"><button type="button" class="btn btn-s btn-sm" data-find>Cerca</button></div>
 <div class="sim-add"><button type="button" class="btn btn-g btn-sm" data-gps>{ic("map-pin")}Usa la mia posizione</button><button type="button" class="btn btn-g btn-sm" data-zoom="1.5" aria-label="Avvicina">{ic("plus")}</button><button type="button" class="btn btn-g btn-sm" data-zoom="0.6667" aria-label="Allontana">{ic("minus")}</button></div>
 <p class="small muted" data-map-msg>La mappa è in scala reale.</p></div></div>
 <div class="sp"><div class="sp-h"><span>3</span>Chi era coinvolto</div><div class="sim-add">{adds}</div>
@@ -612,19 +630,19 @@ def build_novita():
 
 
 def build_periti():
-    head, bld = ph([("/", "Home"), ("", "Area periti")], "Area periti", "Accedi alla tua scrivania o candidati per collaborare con lo Studio.", "Periti e collaboratori")
+    head, bld = ph([("/", "Home"), ("", "Area periti")], "Area periti", "Accedi alla tua scrivania o candidati per collaborare con StimaVeloce.", "Periti e collaboratori")
     body = head + f'''<section class="sec" style="padding-top:40px"><div class="wrap layout"><form class="card form" name="candidatura-perito" method="POST" action="/periti/grazie/" data-netlify="true" netlify-honeypot="bot-field">
 <input type="hidden" name="form-name" value="candidatura-perito"><p class="sr"><label>Non compilare <input name="bot-field"></label></p>
-<h2 style="font-size:28px;margin:0">Candidati come collaboratore</h2><p class="muted" style="margin:0">Ogni candidatura viene verificata dallo Studio prima dell'attivazione.</p>
+<h2 style="font-size:28px;margin:0">Candidati come collaboratore</h2><p class="muted" style="margin:0">Ogni candidatura viene verificata da StimaVeloce prima dell'attivazione.</p>
 <div class="row2"><div class="fld"><label for="p-nome">Nome e cognome</label><input class="in" id="p-nome" name="nome" required autocomplete="name"></div><div class="fld"><label for="p-email">Email</label><input class="in" id="p-email" name="email" type="email" required autocomplete="email"></div></div>
 <div class="row2"><div class="fld"><label for="p-tel">Telefono</label><input class="in" id="p-tel" name="telefono" type="tel" autocomplete="tel"></div><div class="fld"><label for="p-q">Qualifica</label><select class="in" id="p-q" name="qualifica"><option>Perito assicurativo</option><option>Ingegnere</option><option>Architetto</option><option>Geometra</option><option>Medico legale</option><option>Altro</option></select></div></div>
-<div class="row2"><div class="fld"><label for="p-ivass">Iscrizione al ruolo periti IVASS (se presente)</label><input class="in" id="p-ivass" name="ruolo_ivass" placeholder="Numero di iscrizione"></div><div class="fld"><label for="p-zone">Zone operative</label><input class="in" id="p-zone" name="zone" placeholder="Es. Napoli, Caserta"></div></div>
+<div class="row2"><div class="fld"><label for="p-ivass">Iscrizione al ruolo periti IVASS (se presente)</label><input class="in" id="p-ivass" name="ruolo_ivass" placeholder="Numero di iscrizione"></div><div class="fld"><label for="p-zone">Zone operative</label><input class="in" id="p-zone" name="zone" placeholder="Es. province o regioni"></div></div>
 <div class="fld"><label for="p-spec">Specializzazioni ed esperienza</label><textarea class="in" id="p-spec" name="specializzazioni"></textarea></div>
 <label class="chk"><input type="checkbox" name="privacy" value="si" required><span>Ho letto l'<a href="/privacy/">informativa privacy</a> e acconsento al trattamento dei dati per la valutazione della candidatura.</span></label>
 <button class="btn btn-p btn-lg" type="submit">Invia candidatura</button></form>
 <aside class="aside"><div class="card"><h3>Sei già collaboratore?</h3><p class="muted small">Accedi alla scrivania del perito per vedere gli incarichi.</p><a class="btn btn-p" style="width:100%" href="{APP}#scrivania">Accedi alla scrivania</a></div></aside></div></section>'''
-    page("/periti/", "Area periti: accesso e candidatura | StimaVeloce", "Accesso alla scrivania dei periti e candidatura per collaborare con lo Studio Della Vecchia: periti assicurativi, tecnici e medici legali.", body, ld=[bld])
-    h2, _ = ph([("/", "Home"), ("/periti/", "Area periti"), ("", "Candidatura inviata")], "Candidatura inviata", "Grazie: lo Studio valuterà la candidatura e ti contatterà via email.")
+    page("/periti/", "Area periti: accesso e candidatura | StimaVeloce", "Accesso alla scrivania dei periti e candidatura per collaborare con StimaVeloce: periti assicurativi, tecnici e medici legali.", body, ld=[bld])
+    h2, _ = ph([("/", "Home"), ("/periti/", "Area periti"), ("", "Candidatura inviata")], "Candidatura inviata", "Grazie: StimaVeloce valuterà la candidatura e ti contatterà via email.")
     page("/periti/grazie/", "Candidatura inviata | StimaVeloce", "Candidatura inviata.", h2, index=False)
 
 
@@ -636,7 +654,7 @@ def build_gestione():
 <h2>Condizioni</h2><p><span class="tbd-chip">[DA DEFINIRE]</span> Le condizioni economiche dell'affidamento vengono comunicate per iscritto prima di iniziare.</p>
 <h2 id="accessori">Accessori per la pratica</h2><p>Servizi aggiuntivi su richiesta. <span class="tbd-chip">PREZZI DA DEFINIRE</span></p>
 </div><aside class="aside"><div class="card"><h3>Vuoi affidarci la pratica?</h3><p class="muted small">Raccontaci il caso: ti rispondiamo con una proposta scritta.</p><a class="btn btn-p" style="width:100%" href="{APP}#prefattibilita">Racconta il sinistro</a><a class="btn btn-g" style="width:100%;margin-top:6px" href="/contatti/?motivo=pratica">Fai una domanda</a></div></aside></div></section>'''
-    page("/gestione-sinistro/", "Affida la gestione del sinistro allo Studio | StimaVeloce", "Affida allo Studio la parte tecnica del sinistro: documentazione, valutazione del danno, verifica delle offerte, aggiornamenti costanti.", body, ld=[bld])
+    page("/gestione-sinistro/", "Affida la gestione del sinistro a StimaVeloce | StimaVeloce", "Affida a StimaVeloce la parte tecnica del sinistro: documentazione, valutazione del danno, verifica delle offerte, aggiornamenti costanti.", body, ld=[bld])
 
 
 def build_professionisti():
@@ -668,10 +686,10 @@ def _src(items):
 def build_flegrei():
     head, bld = ph([("/", "Home"), ("", "Danni da sisma e bradisismo")], "Lesioni da sisma o bradisismo ai Campi Flegrei",
                    "Crepe, distacchi, infissi che non chiudono: documentiamo i danni della tua casa in modo ordinato, con foto, rilievo e computo dei lavori.", "In primo piano · Campi Flegrei")
-    faq = [("Lo Studio presenta la domanda di contributo per me?", "No. La domanda va presentata secondo le modalità indicate dall'amministrazione competente. Noi prepariamo la documentazione tecnica del danno che ti serve per farlo, o che serve al tecnico che sceglierai."),
+    faq = [("StimaVeloce presenta la domanda di contributo per me?", "No. La domanda va presentata secondo le modalità indicate dall'amministrazione competente. Noi prepariamo la documentazione tecnica del danno che ti serve per farlo, o che serve al tecnico che sceglierai."),
            ("Mi garantite il contributo?", "No. Il contributo dipende dai requisiti fissati dalle norme e dalle verifiche degli enti. Ti diamo una fotografia tecnica chiara del danno e del costo di ripristino."),
-           ("Abito a Casoria o fuori dai Comuni interessati: posso farmi seguire?", "Sì, per la parte tecnica (rilievo, foto, computo) e per eventuali richieste alla tua assicurazione, se la polizza copre il terremoto."),
-           ("Quanto costa?", "La stima senza firma costa 30 €, la perizia fabbricati firmata 130 €. Se serve un sopralluogo ti facciamo prima un preventivo scritto.")]
+           ("Abito fuori dai Comuni interessati: posso farmi seguire?", "Sì, per la parte tecnica (rilievo, foto, computo) e per eventuali richieste alla tua assicurazione, se la polizza copre il terremoto."),
+           ("Quanto costa?", "La prima consulenza è gratuita. Per la stima senza firma (30 €) o per un sopralluogo ti diciamo prima il costo per iscritto.")]
     fq, fqld = faq_html(faq)
     body = head + f'''<section class="sec" style="padding-top:40px"><div class="wrap layout"><div class="prose">
 <div class="note-box" style="background:#FFF4EB;border:1px solid #FFD5B5;border-radius:18px;padding:18px 20px;margin-bottom:28px"><b>Scadenza da tenere d'occhio.</b> Il Piano straordinario per i Campi Flegrei (decreto-legge approvato dal Consiglio dei ministri il 13 ottobre 2026) prevede un contributo fino a 30.000 € per riparare i danni lievi delle abitazioni principali sgomberate a Bacoli, Napoli, Pozzuoli e Monte di Procida, con domande entro il 31 dicembre 2026. Requisiti e modalità possono cambiare: verifica sempre sui siti della Protezione civile e del tuo Comune.</div>
@@ -731,7 +749,7 @@ def build_offerta():
 def build_perche():
     head, bld = ph([("/", "Home"), ("", "Perché StimaVeloce")], "Stime e perizie a prezzo fisso.",
                    "Molti servizi per i sinistri si pagano con una percentuale su quello che ottieni. Le nostre stime e perizie no: paghi un prezzo pubblicato, deciso prima.", "Perché noi")
-    rows = [("Come paghi", "Prezzo fisso pubblicato: 30, 60, 130 o 250 €", "Spesso una percentuale di quanto ottieni"),
+    rows = [("Come paghi", "Prezzo fisso pubblicato: 30 € la stima, 60 € la perizia", "Spesso una percentuale di quanto ottieni"),
             ("Quando sai quanto spendi", "Prima di iniziare", "Solo alla fine, quando conosci l'importo"),
             ("Chi vede la valutazione", "Tu: ogni voce è spiegata", "Non sempre ti viene mostrata nel dettaglio"),
             ("Strumenti per capire da solo", "Quiz, simulatore animato, calcolatori, controllo offerta: gratis", "Di solito una chiamata o un modulo"),
@@ -741,7 +759,7 @@ def build_perche():
 <p class="muted small">Inserisci l'importo che ti hanno prospettato e la percentuale che ti hanno chiesto. Il calcolo usa solo i tuoi numeri.</p>
 <div class="row2"><div class="fld"><label for="rs-imp">Importo del risarcimento (€)</label><input class="in" id="rs-imp" type="number" min="0" step="100" inputmode="numeric" placeholder="es. 5000"></div>
 <div class="fld"><label for="rs-pct">Percentuale richiesta (%)</label><input class="in" id="rs-pct" type="number" min="0" max="60" step="1" inputmode="numeric" placeholder="es. 20"></div></div>
-<div class="fld"><label for="rs-srv">Nostro servizio</label><select class="in" id="rs-srv"><option value="30">Stima senza firma · 30 €</option><option value="60" selected>Perizia auto/moto · 60 €</option><option value="130">Perizia fabbricati · 130 €</option><option value="250">Valutazione medico-legale · 250 €</option></select></div>
+<div class="fld"><label for="rs-srv">Nostro servizio</label><select class="in" id="rs-srv"><option value="30">Stima senza firma · 30 €</option><option value="60" selected>Perizia auto/moto · 60 €</option></select></div>
 <div class="rs-out" aria-live="polite"></div>
 <p class="small muted" style="margin:10px 0 0">Il confronto riguarda solo il costo del servizio tecnico. Non promettiamo un importo di risarcimento: lo decide la compagnia o, se serve, un giudice.</p></div>
 <script>(function(){var i=document.getElementById("rs-imp"),p=document.getElementById("rs-pct"),s=document.getElementById("rs-srv"),o=document.querySelector(".rs-out");
@@ -794,13 +812,13 @@ def build_partner():
 <h2 style="font-size:28px;margin:0">Richiedi di diventare partner</h2>
 <div class="row2"><div class="fld"><label for="pa-n">Nome e cognome</label><input class="in" id="pa-n" name="nome" required autocomplete="name"></div><div class="fld"><label for="pa-a">Attività</label><input class="in" id="pa-a" name="attivita" required autocomplete="organization"></div></div>
 <div class="row2"><div class="fld"><label for="pa-e">Email</label><input class="in" id="pa-e" name="email" type="email" required autocomplete="email"></div><div class="fld"><label for="pa-t">Telefono</label><input class="in" id="pa-t" name="telefono" type="tel" autocomplete="tel"></div></div>
-<div class="row2"><div class="fld"><label for="pa-k">Tipo di attività</label><select class="in" id="pa-k" name="tipo">{opts}</select></div><div class="fld"><label for="pa-z">Zona</label><input class="in" id="pa-z" name="zona" placeholder="Es. Casoria, Afragola"></div></div>
+<div class="row2"><div class="fld"><label for="pa-k">Tipo di attività</label><select class="in" id="pa-k" name="tipo">{opts}</select></div><div class="fld"><label for="pa-z">Zona</label><input class="in" id="pa-z" name="zona" placeholder="Es. provincia o regione"></div></div>
 <label class="chk"><input type="checkbox" name="privacy" value="si" required><span>Ho letto l'<a href="/privacy/">informativa privacy</a> e acconsento a essere ricontattato.</span></label>
 <button class="btn btn-p btn-lg" type="submit">Invia la richiesta</button></form>
 <aside class="aside"><div class="card"><h3>Cosa ottieni</h3><ul class="ticks small"><li>Un link e un QR code dedicati per i tuoi clienti</li><li>Clienti seguiti fino alla fine, senza lavoro in più per te</li><li>Materiali pronti: locandina, biglietti, testo per WhatsApp</li></ul><p class="small muted">Condizioni della collaborazione: <span class="tbd-chip">[DA DEFINIRE]</span></p></div></aside></div></section>'''
     page("/partner/", "Diventa partner: carrozzerie, amministratori, soccorso | StimaVeloce",
-         "Programma partner StimaVeloce per carrozzerie, amministratori di condominio, soccorso stradale e studi legali di Napoli e provincia.", body, ld=[bld])
-    h2, _ = ph([("/", "Home"), ("/partner/", "Partner"), ("", "Richiesta inviata")], "Richiesta inviata", "Grazie: lo Studio ti contatterà per definire la collaborazione.")
+         "Programma partner StimaVeloce per carrozzerie, amministratori di condominio, soccorso stradale e studi legali in tutta Italia.", body, ld=[bld])
+    h2, _ = ph([("/", "Home"), ("/partner/", "Partner"), ("", "Richiesta inviata")], "Richiesta inviata", "Grazie: StimaVeloce ti contatterà per definire la collaborazione.")
     page("/partner/grazie/", "Richiesta inviata | StimaVeloce", "Richiesta inviata.", h2, index=False)
 
 if __name__ == "__main__":

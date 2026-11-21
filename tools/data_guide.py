@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Guide «Il mondo dei sinistri». verificato=False => pagina in noindex finché lo Studio non approva il testo."""
+"""Guide «Il mondo dei sinistri». verificato=False => pagina in noindex finché StimaVeloce non approva il testo."""
 
 CC = ("Codice civile, artt. 1882–1932 (Normattiva)", "https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:regio.decreto:1942-03-16;262")
 CDA = ("D.Lgs. 7 settembre 2005, n. 209 – Codice delle assicurazioni private (Normattiva)", "https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.legislativo:2005-09-07;209")
@@ -157,14 +157,14 @@ GUIDE = [
   slug="quanto-costa-una-perizia", cat="Perizie", icon="badge-euro", verificato=False,
   h1="Quanto costa una perizia assicurativa",
   title="Quanto costa una perizia assicurativa di parte | StimaVeloce",
-  desc="Da cosa dipende il costo di una perizia di parte e quali sono i prezzi dei servizi StimaVeloce: stima senza firma 30 €, perizia auto/moto 60 €, perizia fabbricati 130 €.",
+  desc="Da cosa dipende il costo di una perizia di parte e quali sono i prezzi dei servizi StimaVeloce: stima senza firma 30 €, perizia auto/moto 60 €.",
   intro="Il costo di una perizia di parte dipende soprattutto dalla complessità del danno e dal lavoro necessario per documentarlo.",
   sezioni=[
    ("Cosa incide sul prezzo", [
      "Tipo di danno ed estensione, necessità di un sopralluogo, numero di documenti da esaminare, livello di dettaglio richiesto (stima orientativa o relazione completa) ed eventuali accertamenti di terzi.",
    ]),
    ("I prezzi di StimaVeloce", [
-     "Stima senza firma: 30 €. Perizia auto/moto: 60 €. Perizia fabbricati: 130 €. Valutazione medico-legale: 250 €. Analisi documentale e consulenze specialistiche: su preventivo comunicato prima di iniziare. Il dettaglio di cosa è incluso è nella pagina Prezzi.",
+     "Stima senza firma: 30 €. Perizia auto/moto: 60 €. Danni alla casa e lesioni alla persona: consulenza gratuita. Analisi documentale e consulenze specialistiche: su preventivo comunicato prima di iniziare. Il dettaglio di cosa è incluso è nella pagina Prezzi.",
    ]),
    ("Prima di affidare l'incarico", [
      "Chiedi sempre cosa è incluso, i tempi, il formato del documento e gli eventuali costi aggiuntivi. Diffida di chi promette risultati certi o compensi legati a un risarcimento garantito.",

@@ -20,19 +20,28 @@ export default async (req) => {
     const esiste = await sb("pratiche?id=eq." + encodeURIComponent(id) + "&select=id,dati");
     if (esiste.length && esiste[0].dati && esiste[0].dati.pagato) return json({ errore: "Pratica già pagata" }, 409);
     await sb("pratiche?on_conflict=id", { method: "POST", prefer: "resolution=merge-duplicates,return=minimal", body: JSON.stringify({ id, email, stato: "attesa_pagamento", dati }) });
+    // Stima già pagata: il suo costo viene scalato dalla perizia
+    let sconto = 0, stimaId = "";
+    if (items.includes("perizia") && /^[A-Za-z0-9-]{4,30}$/.test(b.stima_id || "")) {
+      const st = await sb("pratiche?id=eq." + encodeURIComponent(b.stima_id) + "&select=email,dati");
+      const sd = st.length && st[0].dati;
+      if (sd && sd.pagato && sd.servizio === "stima" && !sd.scalata && String(st[0].email || "").toLowerCase() === email) { sconto = LISTINO.stima.c; stimaId = b.stima_id; }
+    }
     const origin = new URL(req.url).origin;
     const p = {
       mode: "payment", locale: "it", customer_email: email, client_reference_id: id,
       success_url: origin + "/app/?pagato={CHECKOUT_SESSION_ID}#area", cancel_url: origin + "/app/#checkout",
       "metadata[pratica_id]": id, "metadata[servizi]": items.join(","),
+      ...(sconto ? { "metadata[stima_id]": stimaId, "metadata[sconto_cent]": String(sconto) } : {}),
       "payment_intent_data[description]": "StimaVeloce – pratica " + id,
       "payment_intent_data[metadata][pratica_id]": id,
     };
     items.forEach((k, i) => {
       p[`line_items[${i}][quantity]`] = "1";
       p[`line_items[${i}][price_data][currency]`] = "eur";
-      p[`line_items[${i}][price_data][unit_amount]`] = String(LISTINO[k].c);
-      p[`line_items[${i}][price_data][product_data][name]`] = LISTINO[k].n;
+      const scal = k === "perizia" && sconto;
+      p[`line_items[${i}][price_data][unit_amount]`] = String(LISTINO[k].c - (scal ? sconto : 0));
+      p[`line_items[${i}][price_data][product_data][name]`] = LISTINO[k].n + (scal ? " (stima già pagata, scalata)" : "");
     });
     const s = await stripe("checkout/sessions", p);
     return json({ url: s.url, id });
