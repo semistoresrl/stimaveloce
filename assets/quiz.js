@@ -10,16 +10,18 @@
     casa: ["Soffitto o pareti", "Pavimenti", "Impianti", "Infissi o tetto", "Mobili e contenuto"],
     attivita: ["Locali", "Impianti", "Attrezzature", "Merci", "Fermo dell'attività"],
     persona: ["Colpo di frusta o collo", "Fratture", "Contusioni", "Altro"],
+    sisma: ["Crepe nei muri", "Distacchi di intonaco", "Infissi che non chiudono", "Pavimenti o scale", "Casa sgomberata"],
     altro: ["Barca o natante", "Bene personale", "Non lo so"]
   };
-  var Q1T = { auto: "Cosa si è danneggiato dell'auto?", moto: "Cosa si è danneggiato della moto?", casa: "Dove si vede il danno?", attivita: "Cosa è stato colpito?", persona: "Che tipo di lesione?", altro: "Di cosa si tratta?" };
-  var SERV = { auto: ["perizia", "Perizia auto/moto", 60], moto: ["perizia", "Perizia auto/moto", 60], casa: ["fabbricati", "Perizia fabbricati", 130], attivita: ["fabbricati", "Perizia fabbricati", 130], persona: ["medico", "Valutazione medico-legale", 250], altro: ["stima", "Stima senza firma", 30] };
+  var Q1T = { auto: "Cosa si è danneggiato dell'auto?", moto: "Cosa si è danneggiato della moto?", casa: "Dove si vede il danno?", attivita: "Cosa è stato colpito?", persona: "Che tipo di lesione?", sisma: "Cosa noti in casa?", altro: "Di cosa si tratta?" };
+  var SERV = { auto: ["perizia", "Perizia auto/moto", 60], moto: ["perizia", "Perizia auto/moto", 60], casa: ["fabbricati", "Perizia fabbricati", 130], attivita: ["fabbricati", "Perizia fabbricati", 130], persona: ["medico", "Valutazione medico-legale", 250], sisma: ["fabbricati", "Perizia fabbricati", 130], altro: ["stima", "Stima senza firma", 30] };
   var VALUTA = {
     auto: ["Ricambi necessari: originali o equivalenti", "Ore di manodopera e verniciatura", "Valore commerciale del veicolo prima del sinistro", "Fermo tecnico, noleggio e traino se documentati"],
     moto: ["Componenti di sicurezza: telaio, forcella, freni", "Ricambi e manodopera", "Casco e abbigliamento protettivo", "Valore del mezzo prima del sinistro"],
     casa: ["Lavorazioni di ripristino con quantità e prezzi", "Origine del danno e possibili danni nascosti", "Garanzie, franchigie e limiti della polizza", "Vetustà dei beni se la polizza paga a stato d'uso"],
     attivita: ["Danni a locali, impianti e attrezzature", "Merci danneggiate e loro valore", "Fermo dell'attività se coperto dalla polizza", "Somme assicurate e regola proporzionale"],
     persona: ["Documentazione sanitaria completa", "Giorni di inabilità temporanea", "Eventuali postumi permanenti (valutati dal medico legale)", "Spese mediche documentate"],
+    sisma: ["Tipo, ampiezza e posizione delle lesioni", "Rilievo e misure delle parti danneggiate", "Computo dei lavori con il Prezzario Campania 2026", "Documenti per contributi o polizza (verifiche, sgombero, pratiche)"],
     altro: ["Che tipo di bene e quale polizza lo copre", "Documentazione disponibile", "Valore del bene prima del danno"]
   };
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }

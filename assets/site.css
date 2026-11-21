@@ -421,3 +421,11 @@ dialog.wa::backdrop{background:rgba(11,27,58,.45)}
 .qopts button small{font-weight:500;font-size:14px;color:var(--t2)}
 .qopts button:hover{border-color:var(--bl);background:#F5F8FF;transform:translateY(-2px)}
 .mock-st i.on{background:var(--or)}
+
+/* v5 porte rapide in hero */
+.doors{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:10px;margin:22px 0 4px}
+.doors a{display:flex;gap:12px;align-items:center;padding:14px 16px;min-height:56px;border-radius:18px;background:#fff;border:1px solid #E3E7F0;box-shadow:0 6px 18px rgba(11,27,58,.06);color:#0B1B3A;text-decoration:none;transition:transform .2s,box-shadow .2s}
+.doors a:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(11,27,58,.1)}
+.doors .ic{color:#FF7A1A;flex:none;width:22px;height:22px}
+.doors span{font-size:14px;line-height:1.35;color:#4A5672}.doors b{display:block;color:#0B1B3A;font-size:15px}
+.tbl-w{overflow-x:auto}.tbl{width:100%;border-collapse:collapse;font-size:15px}.tbl th,.tbl td{text-align:left;padding:12px 10px;border-bottom:1px solid #E3E7F0}.tbl th{color:#4A5672;font-weight:600}

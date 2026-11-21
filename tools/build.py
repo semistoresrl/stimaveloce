@@ -45,7 +45,7 @@ MENU = [("/aiuto/incidenti-stradali/", "car", "Auto e Moto", "Incidenti, carrozz
         ("/aiuto/perizie-stime/", "clipboard-check", "Perizie e Consulenze", "Stime, perizie di parte, contestazioni")]
 STIME = [("/stima/", "sparkles", "Stima senza firma", "stima"), ("/stima/?tipo=auto", "car", "Perizia auto/moto", "perizia"),
          ("/stima/?tipo=casa", "house", "Perizia fabbricati", "fabbricati"), ("/stima/?tipo=persona", "stethoscope", "Valutazione medico-legale", "medico")]
-GRATIS = [(APP + "#confronto", "scale", "Controlla l'offerta della compagnia"), (APP + "#checklist", "list-checks", "Check-list sinistro (PDF)"),
+GRATIS = [("/offerta/", "scale", "Controlla l'offerta della compagnia"), (APP + "#checklist", "list-checks", "Check-list sinistro (PDF)"),
           (APP + "#incidente", "clipboard-list", "Modulo CAI guidato"), ("/simulatore/", "car", "Simulatore di dinamica")]
 NAV2 = [("/novita/", "Novità"), ("/guide/", "Guide"), ("/strumenti/", "Strumenti"), ("/chi-siamo/", "Chi siamo"), ("/contatti/", "Contatti")]
 
@@ -57,7 +57,10 @@ def _price(i):
 def header(cur):
     col1 = "<h5>Stime e perizie</h5>" + "".join(f'<a href="{h}">{ic(i)}<div><b>{t}<span class="price">{_price(k)}</span></b></div></a>' for h, i, t, k in STIME)
     col1 += "<h5>Gratis</h5>" + "".join(f'<a href="{h}">{ic(i)}<div><b>{t}</b></div></a>' for h, i, t in GRATIS)
-    col2 = ('<h5>Gestione sinistro</h5>'
+    col2 = ('<h5>In primo piano</h5>'
+            f'<a href="/campi-flegrei/">{ic("triangle-alert")}<div><b>Lesioni da sisma Campi Flegrei</b><span>Contributi: domande entro il 31/12</span></div></a>'
+            f'<a href="/polizza-catastrofale/">{ic("shield-check")}<div><b>Polizza catastrofale imprese</b><span>Controlla se ti copre davvero</span></div></a>'
+            '<h5>Gestione sinistro</h5>'
             f'<a href="/gestione-sinistro/">{ic("handshake")}<div><b>Affida la pratica a noi</b><span>Seguiamo il sinistro per te</span></div></a>'
             f'<a href="/gestione-sinistro/#accessori">{ic("package")}<div><b>Accessori per la pratica<span class="tbd">PREZZI DA DEFINIRE</span></b></div></a>'
             '<h5>Per avvocati e professionisti</h5>'
@@ -180,8 +183,8 @@ def faq_html(items, ld=True):
     return f'<div class="faq">{h}</div>', j
 
 
-def band(title="Raccontaci cosa è successo", text="Bastano pochi minuti. Ti diciamo quale servizio è più adatto, prima di qualsiasi pagamento.", btn="Analizza il tuo sinistro"):
-    return f'<section class="sec"><div class="wrap"><div class="band"><div><h2>{e(title)}</h2><p>{e(text)}</p></div><a class="btn btn-p btn-lg" href="{APP}#prefattibilita">{e(btn)}{ic("arrow-right")}</a></div></div></section>'
+def band(title="Raccontaci cosa è successo", text="Bastano pochi minuti. Ti diciamo quale servizio è più adatto, prima di qualsiasi pagamento.", btn="Scopri quanto vale il tuo danno"):
+    return f'<section class="sec"><div class="wrap"><div class="band"><div><h2>{e(title)}</h2><p>{e(text)}</p></div><a class="btn btn-p btn-lg" href="/stima/">{e(btn)}{ic("arrow-right")}</a></div></div></section>'
 
 
 def ph(crumbs, h1, lead="", eyebrow=""):
@@ -243,7 +246,8 @@ def build_home():
 <div class="eyebrow">Studio Della Vecchia · Casoria e Napoli</div>
 <h1>Hai avuto un <span>sinistro?</span></h1>
 <p class="lead">Ti aiutiamo a capire quanto vale davvero il tuo danno, con calma e senza burocrazia. Perizie e stime online, seguite da tecnici veri.</p>
-<div class="cta-row"><a class="btn btn-p btn-lg" href="/stima/">Scopri quanto vale il tuo danno{ic("arrow-right")}</a><a class="btn btn-s btn-lg" href="#come-funziona">Come funziona</a></div>
+<div class="cta-row"><a class="btn btn-p btn-lg" href="/stima/">Scopri quanto vale il tuo danno{ic("arrow-right")}</a><a class="btn btn-s btn-lg" href="/offerta/">Ho già un'offerta</a></div>
+<div class="doors"><a href="/campi-flegrei/">{ic("triangle-alert")}<span><b>Lesioni da sisma?</b>Campi Flegrei: domande entro il 31/12</span></a><a href="/polizza-catastrofale/">{ic("shield-check")}<span><b>Hai un'azienda?</b>Controlla la polizza catastrofale</span></a></div>
 <p class="trust">{ic("shield-check")}Nessuna promessa di risarcimento: una valutazione tecnica chiara, con prezzi pubblicati.</p>
 </div><div>{illus.hero_scene()}</div></div></section>
 <section class="sec" id="come-funziona"><div class="wrap"><div class="sec-h rv"><div class="eyebrow">Come funziona</div><h2>Quattro passi, tutto online</h2></div><div class="steps">{steps_h}</div></div></section>
@@ -391,6 +395,7 @@ def build_istituzionali():
 <h2>Lo Studio</h2><p>Lo {e(SITE["studio"])} si occupa di consulenza tecnica sui sinistri: stime dei danni, perizie di parte, analisi di polizze e preventivi. StimaVeloce porta questo lavoro online, per renderlo più rapido, più trasparente e accessibile a chiunque.</p>
 <h2>Il nostro metodo</h2><ul class="ticks"><li>Valutazioni tecniche documentate, in cui ogni numero è spiegato</li><li>Riferimento puntuale a clausole, pagine e voci di danno</li><li>Prezzi pubblicati e preventivi scritti prima di ogni attività aggiuntiva</li><li>Nessuna promessa di risultato: la decisione sull'indennizzo spetta alla compagnia</li></ul>
 <h2>Tecnologia al servizio del professionista</h2><p>Usiamo strumenti digitali per organizzare documenti e foto e per velocizzare il lavoro ripetitivo. Le valutazioni restano sempre di un tecnico, che le verifica e le firma.</p>
+<h2>Chi firma le perizie</h2><div class="card" style="display:flex;gap:18px;align-items:center;margin:0 0 24px"><div class="ibox" style="width:72px;height:72px;flex:none">{ic("user")}</div><div><b>[DA INSERIRE: nome e titolo del tecnico]</b><p class="small muted" style="margin:4px 0 0">Iscrizione all'albo o al ruolo periti IVASS: [DA INSERIRE] · Foto: [DA INSERIRE]</p></div></div><p>Ogni perizia riporta nome, qualifica e firma del professionista che l'ha redatta.</p>
 <h2>Indipendenza</h2><p>Non vendiamo polizze e non lavoriamo per conto delle compagnie nei casi che seguiamo per i nostri clienti.</p>
 </div><aside class="aside"><div class="card"><h3>Contatti</h3><p class="small"><a href="mailto:{SITE["email"]}">{e(SITE["email"])}</a><br>{e(SITE["city"])}</p><a class="btn btn-s" style="width:100%" href="/contatti/">Scrivici</a></div></aside></div></section>{band()}'''
     page("/chi-siamo/", f"Chi siamo – {SITE['studio']} | StimaVeloce", f"StimaVeloce è il servizio online dello {SITE['studio']}: consulenza tecnica sui sinistri, stime e perizie di parte.", body, cur="/chi-siamo/", ld=[bld, ORG])
@@ -507,7 +512,7 @@ def build_stima():
 <div class="mock-st" style="margin:0 0 22px" aria-hidden="true"><i class="on" data-qbar="0"></i><i data-qbar="1"></i><i data-qbar="2"></i><i data-qbar="3"></i></div>
 <div data-q="0"><h2 style="font-size:28px">Che tipo di danno hai subito?</h2><div class="qopts" data-k="tipo">
 <button type="button" data-v="auto">{ic("car")}Auto</button><button type="button" data-v="moto">{ic("bike")}Moto o scooter</button><button type="button" data-v="casa">{ic("house")}Casa o condominio</button>
-<button type="button" data-v="attivita">{ic("store")}Attività o negozio</button><button type="button" data-v="persona">{ic("heart-pulse")}Lesioni alla persona</button><button type="button" data-v="altro">{ic("circle-help")}Altro</button></div></div>
+<button type="button" data-v="attivita">{ic("store")}Attività o negozio</button><button type="button" data-v="persona">{ic("heart-pulse")}Lesioni alla persona</button><button type="button" data-v="sisma">{ic("triangle-alert")}Lesioni da sisma</button><button type="button" data-v="altro">{ic("circle-help")}Altro</button></div><p style="margin:18px 0 0"><a class="more" href="/offerta/">Hai già un'offerta della compagnia? Controllala{ic("arrow-right")}</a></p></div>
 <div data-q="1" hidden><h2 style="font-size:28px" data-q1t>Cosa è stato danneggiato?</h2><div class="qopts" data-k="ogg"></div></div>
 <div data-q="2" hidden><h2 style="font-size:28px">Quanto ti sembra grave?</h2><div class="qopts" data-k="grav">
 <button type="button" data-v="lieve">{ic("info")}Lieve<small>Graffi, macchie, piccoli danni</small></button><button type="button" data-v="medio">{ic("triangle-alert")}Medio<small>Parti da sostituire o rifare</small></button><button type="button" data-v="grave">{ic("flame")}Grave<small>Danni estesi o non so valutare</small></button></div></div>
@@ -542,6 +547,8 @@ def build_simulatore():
 
 
 NOVITA = [
+    ("2026-10-13", "Campi Flegrei: piano straordinario per le case danneggiate", "Contributo fino a 30.000 € per i danni lievi delle abitazioni principali sgomberate a Bacoli, Napoli, Pozzuoli e Monte di Procida. Domande entro il 31 dicembre 2026.", "Consiglio dei ministri, 13 ottobre 2026", "/campi-flegrei/"),
+    ("2026-03-31", "Polizza catastrofale: obbligo esteso a tutte le imprese", "Con la scadenza del 31 marzo 2026 per turismo, ristorazione e pesca, l'obbligo vale ormai per quasi tutte le imprese. Franchigia massima 15%.", "L. 213/2023 e D.L. 200/2025", "/polizza-catastrofale/"),
     ("2026-04-01", "Danno biologico lieve: aggiornati gli importi", "Dal mese di aprile 2026 il primo punto di invalidità per le lesioni di lieve entità vale 988,45 € e l'inabilità temporanea assoluta 57,64 € al giorno (+2,6%).", "Art. 139 Codice delle assicurazioni, decreto MIMIT 2026", "/strumenti/danno-biologico/"),
     ("2026-01-29", "Nuovo prezzario dei lavori pubblici in Campania", "La Regione Campania ha approvato il prezzario 2026 (DGR n. 14 del 29 gennaio 2026): è il riferimento che usiamo nei calcolatori di stima dei lavori.", "BURC n. 6 del 2 febbraio 2026", "/strumenti/stime-ripristino/"),
     ("2025-03-05", "In vigore la Tabella unica nazionale per le lesioni gravi", "Per i sinistri stradali e sanitari dal 5 marzo 2025, le lesioni da 10 a 100 punti si liquidano con la Tabella unica nazionale.", "DPR 13 gennaio 2025, n. 12", "/guide/risarcimento-danni-auto/"),
@@ -612,5 +619,72 @@ def build_seo():
     print(f"pagine: {len(PAGES)} · in sitemap: {len(urls)}")
 
 
+
+# ------------------------------------------------------------------ IN PRIMO PIANO (Campi Flegrei, polizza catastrofale, offerta)
+def _src(items):
+    return '<h2>Fonti ufficiali</h2><ul class="small">' + "".join(f'<li><a href="{u}" rel="noopener" target="_blank">{e(t)}</a></li>' for t, u in items) + "</ul>"
+
+
+def build_flegrei():
+    head, bld = ph([("/", "Home"), ("", "Danni da sisma e bradisismo")], "Lesioni da sisma o bradisismo ai Campi Flegrei",
+                   "Crepe, distacchi, infissi che non chiudono: documentiamo i danni della tua casa in modo ordinato, con foto, rilievo e computo dei lavori.", "In primo piano · Campi Flegrei")
+    faq = [("Lo Studio presenta la domanda di contributo per me?", "No. La domanda va presentata secondo le modalità indicate dall'amministrazione competente. Noi prepariamo la documentazione tecnica del danno che ti serve per farlo, o che serve al tecnico che sceglierai."),
+           ("Mi garantite il contributo?", "No. Il contributo dipende dai requisiti fissati dalle norme e dalle verifiche degli enti. Ti diamo una fotografia tecnica chiara del danno e del costo di ripristino."),
+           ("Abito a Casoria o fuori dai Comuni interessati: posso farmi seguire?", "Sì, per la parte tecnica (rilievo, foto, computo) e per eventuali richieste alla tua assicurazione, se la polizza copre il terremoto."),
+           ("Quanto costa?", "La stima senza firma costa 30 €, la perizia fabbricati firmata 130 €. Se serve un sopralluogo ti facciamo prima un preventivo scritto.")]
+    fq, fqld = faq_html(faq)
+    body = head + f'''<section class="sec" style="padding-top:40px"><div class="wrap layout"><div class="prose">
+<div class="note-box" style="background:#FFF4EB;border:1px solid #FFD5B5;border-radius:18px;padding:18px 20px;margin-bottom:28px"><b>Scadenza da tenere d'occhio.</b> Il Piano straordinario per i Campi Flegrei (decreto-legge approvato dal Consiglio dei ministri il 13 ottobre 2026) prevede un contributo fino a 30.000 € per riparare i danni lievi delle abitazioni principali sgomberate a Bacoli, Napoli, Pozzuoli e Monte di Procida, con domande entro il 31 dicembre 2026. Requisiti e modalità possono cambiare: verifica sempre sui siti della Protezione civile e del tuo Comune.</div>
+<h2>Cosa facciamo per te</h2><ul class="ticks"><li>Fascicolo fotografico ordinato di ogni lesione, stanza per stanza</li><li>Rilievo e misure delle parti danneggiate</li><li>Computo dei lavori di ripristino con il Prezzario Regione Campania 2026</li><li>Perizia firmata da usare con la tua assicurazione, se la polizza copre il terremoto</li><li>Un elenco chiaro dei documenti da conservare</li></ul>
+<h2>Cosa preparare</h2><ul class="ticks"><li>Eventuale ordinanza di sgombero e esito delle verifiche (scheda AeDES o CARTIS, se ricevuta)</li><li>Foto delle lesioni con la data, meglio con un metro o un oggetto di riferimento</li><li>Titolo di proprietà o contratto, dati catastali</li><li>Pratiche edilizie e eventuali domande di condono o sanatoria</li><li>Polizza casa o condominio, se c'è</li></ul>
+<h2>Cosa non facciamo</h2><p>Non presentiamo le domande al posto tuo, non diamo consulenza legale e non promettiamo contributi o indennizzi. Le verifiche di agibilità sono compito degli enti e dei tecnici incaricati.</p>
+<h2>Domande frequenti</h2>{fq}
+{_src([("Protezione civile – Campi Flegrei", "https://rischi.protezionecivile.gov.it/it/vulcanico/vulcani-italia/campi-flegrei/"), ("Governo – Comunicati del Consiglio dei ministri", "https://www.governo.it/it/comunicati-stampa")])}
+<p class="small muted">Ultimo aggiornamento: {e(SITE["updated"])}. Informazioni generali, non costituiscono consulenza legale.</p>
+</div><aside class="aside"><div class="card"><h3>Hai lesioni in casa?</h3><p class="muted small">Inizia con 4 tocchi, poi carica le foto.</p><a class="btn btn-p" style="width:100%" href="/stima/?tipo=sisma">Inizia la stima</a><a class="btn btn-g" style="width:100%;margin-top:6px" href="/contatti/?motivo=perizia">Chiedi un sopralluogo</a></div></aside></div></section>'''
+    page("/campi-flegrei/", "Danni da sisma e bradisismo Campi Flegrei: perizia e computo | StimaVeloce",
+         "Lesioni in casa dopo il sisma ai Campi Flegrei? Fascicolo fotografico, rilievo e computo con Prezzario Campania 2026. Contributo fino a 30.000 €: domande entro il 31/12/2026.",
+         body, ld=[bld, fqld])
+
+
+def build_catnat():
+    head, bld = ph([("/", "Home"), ("", "Polizza catastrofale imprese")], "Polizza catastrofale: la tua copre davvero?",
+                   "È obbligatoria per quasi tutte le imprese. Leggiamo la tua polizza e ti diciamo in parole semplici cosa copre e cosa no.", "In primo piano · Aziende")
+    faq = [("Chi deve averla?", "Le imprese con sede in Italia, o con stabile organizzazione in Italia, iscritte al Registro delle imprese, per i beni aziendali: terreni, fabbricati, impianti e macchinari, attrezzature. Sono escluse le imprese agricole, che hanno regole proprie."),
+           ("Cosa deve coprire?", "Danni da terremoto, alluvione, frana, inondazione ed esondazione. La franchigia o lo scoperto non possono superare il 15% del danno."),
+           ("Cosa rischia chi non la ha?", "La legge collega l'obbligo all'accesso a contributi, sovvenzioni e agevolazioni pubbliche. Per i dettagli sul tuo caso rivolgiti al tuo commercialista o al tuo intermediario."),
+           ("Voi vendete polizze?", "No. Non siamo intermediari: facciamo solo l'analisi tecnica della polizza che hai già o del preventivo che ti hanno proposto.")]
+    fq, fqld = faq_html(faq)
+    rows = [("Grandi imprese (oltre 250 dipendenti)", "31 marzo 2025"), ("Medie imprese (50–250 dipendenti)", "1° ottobre 2025"), ("Micro e piccole imprese", "1° gennaio 2026"), ("Micro e piccole di turismo, ristorazione e pesca", "31 marzo 2026")]
+    tab = "".join(f"<tr><td>{e(a)}</td><td><b>{e(b)}</b></td></tr>" for a, b in rows)
+    body = head + f'''<section class="sec" style="padding-top:40px"><div class="wrap layout"><div class="prose">
+<h2>Le scadenze</h2><div class="tbl-w"><table class="tbl"><thead><tr><th>Impresa</th><th>Obbligo dal</th></tr></thead><tbody>{tab}</tbody></table></div>
+<p>Le scadenze sono ormai passate per tutti: oggi conta che la polizza sia <b>adeguata</b>.</p>
+<h2>Cosa controlliamo</h2><ul class="ticks"><li>Che ci siano tutti e cinque gli eventi richiesti</li><li>Franchigie e scoperti, entro il 15%</li><li>Somme assicurate rispetto al valore reale dei beni (regola proporzionale)</li><li>Beni inclusi ed esclusi: fabbricato, impianti, macchinari, attrezzature</li><li>Limiti di indennizzo e condizioni particolari</li></ul>
+<h2>Cosa ricevi</h2><p>Una scheda chiara, da girare al tuo intermediario, con i punti da sistemare. <span class="tbd-chip">PREZZO DA DEFINIRE</span> Fino ad allora ti facciamo un preventivo scritto.</p>
+<h2>Domande frequenti</h2>{fq}
+{_src([("MIMIT – Polizze per rischi catastrofali", "https://www.mimit.gov.it/it/mercato-e-consumatori/tutela-del-consumatore/assicurazioni/polizze-per-rischi-catastrofali"), ("Legge 30 dicembre 2023, n. 213, art. 1, commi 101-111", "https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:legge:2023-12-30;213")])}
+<p class="small muted">Ultimo aggiornamento: {e(SITE["updated"])}. Informazioni generali, non costituiscono consulenza legale o fiscale.</p>
+</div><aside class="aside"><div class="card"><h3>Fai controllare la polizza</h3><p class="muted small">Inviaci il PDF della polizza o del preventivo.</p><a class="btn btn-p" style="width:100%" href="/contatti/?motivo=offerta">Richiedi il controllo</a><a class="btn btn-g" style="width:100%;margin-top:6px" href="/aiuto/analisi-polizze/">Altre analisi polizze</a></div></aside></div></section>'''
+    page("/polizza-catastrofale/", "Polizza catastrofale imprese: controllo copertura | StimaVeloce",
+         "Polizza catastrofale obbligatoria per le imprese: scadenze, cosa deve coprire, franchigia max 15%. Analizziamo la tua polizza e ti diciamo cosa manca.",
+         body, ld=[bld, fqld])
+
+
+def build_offerta():
+    head, bld = ph([("/", "Home"), ("", "Controlla l'offerta")], "Ti hanno fatto un'offerta? Controllala gratis",
+                   "Prima di firmare, verifica che l'offerta della compagnia copra tutto quello che ti spetta dal punto di vista tecnico.", "Gratis")
+    chk = ["Ci sono tutte le parti danneggiate che vedi?", "Ricambi e ore di manodopera sono coerenti con il danno?", "È considerato il fermo del mezzo o il noleggio, se documentati?",
+           "Per la casa: sono incluse tutte le lavorazioni, anche quelle nascoste?", "Franchigie e scoperti sono applicati come dice la polizza?", "La firma vale come quietanza a saldo? Leggi bene prima di firmare."]
+    li = "".join(f"<li>{e(c)}</li>" for c in chk)
+    body = head + f'''<section class="sec" style="padding-top:40px"><div class="wrap layout"><div class="prose">
+<h2>Sei domande da farti prima di firmare</h2><ul class="ticks">{li}</ul>
+<h2>Come funziona il controllo</h2><ol><li>Inserisci l'importo offerto e cosa riguarda</li><li>Lo strumento ti mostra i punti da verificare</li><li>Se qualcosa non torna, puoi chiedere una stima a 30 € o una perizia firmata</li></ol>
+<p class="small muted">Il confronto è tecnico: non diamo consulenza legale e non promettiamo importi diversi. Ogni anno i sinistri costano di più per ricambi e manodopera: per questo vale la pena controllare i numeri.</p>
+</div><aside class="aside"><div class="card"><h3>Controlla ora</h3><p class="muted small">Gratis, senza registrazione.</p><a class="btn btn-p" style="width:100%" href="{APP}#confronto">Apri il controllo offerta</a><a class="btn btn-g" style="width:100%;margin-top:6px" href="/stima/">Ottieni una stima</a></div></aside></div></section>'''
+    page("/offerta/", "Offerta dell'assicurazione: controllala prima di firmare | StimaVeloce",
+         "Hai ricevuto un'offerta di risarcimento dalla compagnia? Sei domande da farti prima di firmare e un controllo gratuito online.",
+         body, ld=[bld])
+
 if __name__ == "__main__":
-    build_home(); build_servizi(); build_casa(); build_strumenti(); build_guide(); build_istituzionali(); build_stima(); build_simulatore(); build_novita(); build_periti(); build_gestione(); build_professionisti(); build_seo(); build_search()
+    build_home(); build_servizi(); build_casa(); build_strumenti(); build_guide(); build_istituzionali(); build_stima(); build_simulatore(); build_novita(); build_periti(); build_gestione(); build_professionisti(); build_flegrei(); build_catnat(); build_offerta(); build_seo(); build_search()
