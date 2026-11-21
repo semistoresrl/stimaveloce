@@ -51,13 +51,15 @@ alter table public.pratiche enable row level security;
 
 drop policy if exists "pratiche: lettura" on public.pratiche;
 create policy "pratiche: lettura" on public.pratiche for select
-  using (owner = auth.uid() or public.ruolo() in ('studio', 'perito'));
+  using (owner = auth.uid() or public.ruolo() in ('studio', 'perito')
+         or (owner is null and lower(email) = lower(auth.jwt() ->> 'email')));
 drop policy if exists "pratiche: il cliente crea le sue" on public.pratiche;
 create policy "pratiche: il cliente crea le sue" on public.pratiche for insert
   with check (owner = auth.uid() or public.ruolo() = 'studio');
 drop policy if exists "pratiche: modifica" on public.pratiche;
 create policy "pratiche: modifica" on public.pratiche for update
-  using (owner = auth.uid() or public.ruolo() in ('studio', 'perito'))
+  using (owner = auth.uid() or public.ruolo() in ('studio', 'perito')
+         or (owner is null and lower(email) = lower(auth.jwt() ->> 'email')))
   with check (owner = auth.uid() or public.ruolo() in ('studio', 'perito'));
 drop policy if exists "pratiche: solo lo studio elimina" on public.pratiche;
 create policy "pratiche: solo lo studio elimina" on public.pratiche for delete using (public.ruolo() = 'studio');
@@ -67,9 +69,14 @@ create or replace function public.pratiche_protezione() returns trigger
 language plpgsql security definer set search_path = public as $$
 begin
   new.updated_at := now();
-  if tg_op = 'UPDATE' and coalesce(public.ruolo(), 'cliente') = 'cliente' then
-    new.owner := old.owner;
+  if tg_op = 'UPDATE' and auth.uid() is not null and coalesce(public.ruolo(), 'cliente') = 'cliente' then
+    -- una pratica pagata prima di creare l'accesso passa al cliente con la stessa email
+    new.owner := coalesce(old.owner, case when lower(old.email) = lower(auth.jwt() ->> 'email') then auth.uid() end);
     new.perito := old.perito;
+    -- il cliente non può segnare da solo una pratica come pagata
+    if coalesce((old.dati ->> 'pagato')::boolean, false) is distinct from coalesce((new.dati ->> 'pagato')::boolean, false) then
+      new.dati := jsonb_set(new.dati, '{pagato}', coalesce(old.dati -> 'pagato', 'false'::jsonb));
+    end if;
   end if;
   return new;
 end $$;

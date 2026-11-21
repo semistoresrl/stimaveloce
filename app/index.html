@@ -728,7 +728,7 @@ var TIPI = [
   {id:'sanita', label:'Malasanità'}
 ];
 var tipoLabel = function(id){ for (var i=0;i<TIPI.length;i++) if (TIPI[i].id===id) return TIPI[i].label; return 'Sinistro'; };
-var STATI = {lead:'Lead gratuito', ricevuta:'Ricevuta', lavorazione:'In lavorazione', attesa:'In attesa documenti', completata:'Completata', mandato:'Mandato attivo'};
+var STATI = {lead:'Lead gratuito', attesa_pagamento:'In attesa di pagamento', ricevuta:'Ricevuta', lavorazione:'In lavorazione', attesa:'In attesa documenti', completata:'Completata', mandato:'Mandato attivo'};
 var ORDINE = ['ricevuta','lavorazione','attesa','completata','mandato'];
 var PARTNER_CAT = {rca:'Carrozzeria', nautico:'Cantiere nautico', acqua:'Impresa edile', fabbricato:'Impresa edile', incendio:'Impresa edile', infortunio:'Poliambulatorio', rc:'Impresa edile', sanita:'Poliambulatorio'};
 
@@ -1374,7 +1374,7 @@ function vCheckout(){
       S.cart.map(function(id){ var s = SERV(id); return '<div class="row" style="justify-content:space-between"><span>'+s.n+'</span><strong>'+eur(s.p)+'</strong></div>'; }).join('')+
       '<div class="row" style="justify-content:space-between;border-top:1px solid #F0F0F0;padding-top:12px;font-size:18px"><strong>Totale</strong><strong>'+eur(cartTotal())+'</strong></div>'+
       '<button type="button" class="btn btn-k btn-lg" data-act="pay"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Paga con Stripe</button>'+
-      '<span class="small" style="line-height:1.5">Nella versione definitiva qui si apre Stripe Checkout (carta, Apple Pay, Google Pay). In questa prova il pagamento è simulato: non inserire dati di pagamento.</span>'+
+      '<span class="small" style="line-height:1.5">'+(PAY && PAY.attivo ? (PAY.modalita === 'test' ? 'Pagamento sicuro con Stripe in <strong>modalità di prova</strong>: usa la carta 4242 4242 4242 4242, una data futura e un CVC qualsiasi. Nessun addebito reale.' : 'Pagamento sicuro con Stripe: carta, Apple Pay o Google Pay. I dati della carta non passano dal nostro sito.') : 'Nella versione definitiva qui si apre Stripe Checkout (carta, Apple Pay, Google Pay). In questa prova il pagamento è simulato: non inserire dati di pagamento.')+'</span>'+
     '</aside>'+
   '</div></section>';
 }
@@ -2953,6 +2953,43 @@ window.addEventListener('hashchange', function(){ render(false); });
 
 /* ---------- azioni ---------- */
 function addToCart(id){ if (S.cart.indexOf(id) === -1) S.cart.push(id); save(); }
+function notificaOrdine(p, tot, nota){
+  nfSend('ordine', {pratica:p.id, nome:p.nome||'', email:p.email||'', telefono:p.tel||'', servizi:(p.pagamenti||[]).map(function(x){ return x.d+' '+x.v+' €'; }).join(', '), totale:tot+' €', tipo:p.tipo||'', compagnia:p.compagnia||'', offerta:p.offerta||'', descrizione:p.descr||'', nota:nota});
+}
+var PAY = null;
+function payCheck(){ try { fetch('/.netlify/functions/checkout', {cache:'no-store'}).then(function(r){ return r.ok ? r.json() : null; }).then(function(j){ PAY = j && j.attivo ? j : null; if (PAY && /^#?checkout/.test(location.hash)) render(true); }).catch(function(){}); } catch(e){} }
+function pagaStripe(btn, ce){
+  var items = S.cart.slice(), files = F.files.concat(CK.files);
+  var principale = ['medico','fabbricati','perizia','stima','video'].filter(function(k){ return items.indexOf(k) > -1; })[0] || 'video';
+  var bozza = {id:uid(), tipo:F.tipo, data:F.data, bene:F.bene, compagnia:F.compagnia, descr:F.descr, servizio:principale, prezzo:SERV(principale).p, pagato:false, stato:'attesa_pagamento',
+    offerta: F.offerta ? Number(F.offerta) : 0, stima:0, mandato:false, nome:F.nome, email:F.email.toLowerCase(), tel:F.tel, creato:oggi(), files:files,
+    messaggi:[{da:'studio', t:'Abbiamo ricevuto la sua pratica. Un tecnico la prende in carico a breve.', at:oggi()}], notifiche:[], pagamenti:[], partner:null, voci:[], rilievi:{}, note:''};
+  btn.disabled = true; var old = btn.innerHTML; btn.textContent = 'Apro il pagamento sicuro…'; ce.textContent = '';
+  fetch('/.netlify/functions/checkout', {method:'POST', headers:{'content-type':'application/json'}, body:JSON.stringify({servizi:items, email:F.email, pratica:bozza})})
+    .then(function(r){ return r.json().then(function(j){ if (!r.ok || !j.url) throw new Error(j.errore || 'Pagamento non disponibile'); return j; }); })
+    .then(function(j){ try { localStorage.setItem('sv_pay', JSON.stringify({id:j.id, tot:cartTotal(), at:Date.now()})); } catch(e){} location.href = j.url; })
+    .catch(function(err){ btn.disabled = false; btn.innerHTML = old; ce.textContent = err.message || 'Pagamento non disponibile: riprova tra poco.'; });
+}
+function rientroPagamento(){
+  var m = /[?&]pagato=(cs_[A-Za-z0-9_]+)/.exec(location.search); if (!m) return;
+  history.replaceState(null, '', location.pathname + (location.hash || '#area'));
+  toast('Verifico il pagamento…');
+  var tent = 0;
+  (function prova(){
+    fetch('/.netlify/functions/verifica-pagamento?s=' + encodeURIComponent(m[1]), {cache:'no-store'}).then(function(r){ return r.json(); }).then(function(j){
+      if (j.pagato && j.pratica) {
+        var p = j.pratica, info = {}; try { info = JSON.parse(localStorage.getItem('sv_pay') || '{}'); localStorage.removeItem('sv_pay'); } catch(e){}
+        var k = -1; S.pratiche.forEach(function(x, i){ if (x.id === p.id) k = i; });
+        if (k > -1) S.pratiche[k] = p; else { S.pratiche.unshift(p); notificaOrdine(p, (p.pagamenti||[]).reduce(function(s2, x){ return s2 + Number(x.v||0); }, 0), 'Pagato con Stripe' + (p.stripe && p.stripe.modalita === 'test' ? ' (modalità di prova)' : '')); }
+        S.cart = []; CK.files = []; resetF(); A.sel = 0; A.tab = 'pratica';
+        if (!(S.session && S.session.sb && S.session.email === p.email)) S.session = {role:'cliente', email:p.email};
+        if (typeof sbHash !== 'undefined') sbHash[p.id] = JSON.stringify(p);
+        save(); toast('Pagamento confermato. Pratica ' + p.id + ' creata'); location.hash = 'area'; render(false);
+      } else if (tent++ < 4) setTimeout(prova, 2000);
+      else toast('Pagamento non ancora confermato: se hai pagato, la pratica comparirà a breve.');
+    }).catch(function(){ if (tent++ < 4) setTimeout(prova, 2000); });
+  })();
+}
 function creaPratica(servizio, files){
   var P = S.prezzi, items = S.cart.slice();
   var principale = ['medico','fabbricati','perizia','stima','video'].filter(function(k){ return items.indexOf(k) > -1; })[0] || 'video';
@@ -3000,6 +3037,7 @@ document.addEventListener('click', function(e){
       var ce = $('#ck-err');
       if (!F.nome || !/^\S+@\S+\.\S+$/.test(F.email)) { ce.textContent = 'Inserisci nome ed email validi.'; return; }
       if (!F.consenso || !fe.termini.checked) { ce.textContent = 'Servono il consenso privacy e l’accettazione dei termini.'; return; }
+      if (PAY && PAY.attivo && DEMO_EMAILS.indexOf(F.email.toLowerCase()) === -1) { pagaStripe(a, ce); break; }
       modal('<h2 class="ht" style="font-size:26px">Pagamento simulato</h2><p class="muted" style="line-height:1.6">Nella versione definitiva qui si apre la pagina sicura di Stripe. In questa prova confermi e la pratica viene creata.</p><div class="row" style="justify-content:space-between;font-size:18px"><strong>Totale</strong><strong>'+eur(cartTotal())+'</strong></div><div class="row g12"><button type="button" class="btn btn-g" data-act="pay-ok">Conferma pagamento di prova</button><button type="button" class="btn btn-o" data-act="modal-close">Annulla</button></div>');
       break;
     case 'pay-ok':
@@ -3169,6 +3207,8 @@ window.addEventListener('hashchange', toSite);
 if (!toSite()) render(false);
 if (!S.cookie) showCookie();
 sbStart();
+payCheck();
+rientroPagamento();
 })();
 </script>
 </body>
