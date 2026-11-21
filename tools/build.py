@@ -254,7 +254,7 @@ def build_home():
 <section class="sec" id="come-funziona"><div class="wrap"><div class="sec-h rv"><div class="eyebrow">Come funziona</div><h2>Quattro passi, tutto online</h2></div><div class="steps">{steps_h}</div></div></section>
 <section class="sec sec-w" id="servizi"><div class="wrap"><div class="sec-h rv"><div class="eyebrow">Stime e perizie</div><h2>Scegli il servizio, il prezzo è chiaro</h2><p class="lead">Prezzi finali pubblicati, senza IVA: lo Studio è in regime forfettario. Prima di pagare puoi sempre descrivere il caso gratis.</p></div><div class="svc4">{"".join(cards)}</div>
 <p style="margin-top:22px"><a class="more" href="/prezzi/">Cosa comprende ogni servizio{ic("arrow-right")}</a></p></div></section>
-<section class="sec"><div class="wrap"><div class="fixband rv"><div><div class="eyebrow">Perché noi</div><h2>Prezzo fisso. Il risarcimento resta tuo.</h2><p class="lead">Niente percentuali su quello che ottieni: sai quanto spendi prima di iniziare, e ogni numero della valutazione è spiegato.</p></div><div class="cta-row"><a class="btn btn-p btn-lg" href="/perche-noi/#risparmio">Fai il conto con i tuoi numeri</a><a class="btn btn-s btn-lg" href="/sei-in-tempo/">Sei ancora in tempo?</a></div></div></div></section>
+<section class="sec"><div class="wrap"><div class="fixband rv"><div><div class="eyebrow">Perché noi</div><h2>Stime e perizie a prezzo fisso.</h2><p class="lead">Niente percentuali sulla valutazione: sai quanto spendi prima di iniziare, e ogni numero è spiegato.</p></div><div class="cta-row"><a class="btn btn-p btn-lg" href="/perche-noi/#risparmio">Fai il conto con i tuoi numeri</a><a class="btn btn-s btn-lg" href="/sei-in-tempo/">Sei ancora in tempo?</a></div></div></div></section>
 <section class="sec"><div class="wrap"><div class="sec-h rv"><div class="eyebrow">Gratis</div><h2>Strumenti gratuiti, subito</h2></div><div class="grid g2">{gratis}</div></div></section>
 <section class="sec sec-w"><div class="wrap" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:40px;align-items:center"><div class="rv">{sim}</div><div class="rv"><div class="eyebrow">Simulatore di dinamica</div><h2>Disegna l'incidente in un minuto</h2><p class="lead">Trascina auto e moto sulla strada, segna i punti d'urto, le distanze e le velocità. Poi salva l'immagine o stampala.</p><p class="small muted">Schema indicativo, non è una perizia.</p><a class="btn btn-p" href="/simulatore/">Apri il simulatore{ic("arrow-right")}</a></div></div></section>
 <section class="sec"><div class="wrap"><div class="sec-h rv"><div class="eyebrow">Novità e curiosità</div><h2>Lo sapevi?</h2></div><div class="scroller">{sapevi_h}</div><p><a class="more" href="/novita/">Altre curiosità e leggi aggiornate{ic("arrow-right")}</a></p></div></section>
@@ -729,8 +729,8 @@ def build_offerta():
 
 # ------------------------------------------------------------------ DIFFERENZIAZIONE (perché noi, sei in tempo, partner)
 def build_perche():
-    head, bld = ph([("/", "Home"), ("", "Perché StimaVeloce")], "Prezzo fisso. Il risarcimento resta tuo.",
-                   "Molti servizi per i sinistri si pagano con una percentuale su quello che ottieni. Noi no: paghi un prezzo pubblicato, deciso prima, e tutto il resto rimane a te.", "Perché noi")
+    head, bld = ph([("/", "Home"), ("", "Perché StimaVeloce")], "Stime e perizie a prezzo fisso.",
+                   "Molti servizi per i sinistri si pagano con una percentuale su quello che ottieni. Le nostre stime e perizie no: paghi un prezzo pubblicato, deciso prima.", "Perché noi")
     rows = [("Come paghi", "Prezzo fisso pubblicato: 30, 60, 130 o 250 €", "Spesso una percentuale di quanto ottieni"),
             ("Quando sai quanto spendi", "Prima di iniziare", "Solo alla fine, quando conosci l'importo"),
             ("Chi vede la valutazione", "Tu: ogni voce è spiegata", "Non sempre ti viene mostrata nel dettaglio"),
@@ -753,11 +753,11 @@ o.innerHTML='<div class="rs-grid"><div><span>Con la percentuale</span><b>'+f(per
 <div class="tbl-w card" style="padding:8px 8px 0"><table class="tbl cmp"><thead><tr><th></th><th>StimaVeloce</th><th>Servizi a percentuale</th></tr></thead><tbody>{tr}</tbody></table></div>
 <p class="small muted" style="margin-top:10px">Confronto con il modello di compenso a percentuale in generale, non con un'azienda specifica. Le condizioni dei singoli operatori possono essere diverse.</p>
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:24px;margin-top:40px;align-items:start">{calc}
-<div class="prose"><h2>I nostri impegni</h2><ul class="ticks"><li>Prezzi pubblicati, uguali per tutti</li><li>Ogni numero della valutazione è spiegato</li><li>Nessuna promessa di risarcimento: solo tecnica, chiara</li><li>Atti legali solo con avvocati, lesioni solo con medici legali</li><li>I tuoi dati restano tuoi: niente vendita a terzi</li></ul>
+<div class="prose"><h2>I nostri impegni</h2><ul class="ticks"><li>Prezzi pubblicati, uguali per tutti</li><li>Ogni numero della valutazione è spiegato</li><li>Nessuna promessa di risarcimento: solo tecnica, chiara</li><li>Atti legali solo con avvocati, lesioni solo con medici legali</li><li>I tuoi dati restano tuoi: niente vendita a terzi</li></ul><p class="small muted">Se poi scegli di affidarci anche la gestione della pratica, le condizioni ti vengono indicate per iscritto prima di firmare.</p>
 <a class="btn btn-p btn-lg" href="/stima/">Scopri quanto vale il tuo danno{ic("arrow-right")}</a></div></div>
 </div></section>'''
     css = '<style>.cmp td.ok{color:#0B1B3A;font-weight:600;background:#EEF3FF}.cmp th:nth-child(2){color:#1F5EFF}.rs-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}.rs-grid div{background:#F7F8FB;border-radius:16px;padding:14px}.rs-grid span{display:block;font-size:13px;color:#4A5672}.rs-grid b{font-size:20px;color:#0B1B3A}.rs-grid .rs-hl{background:#FFF1E6}.rs-grid .rs-hl b{color:#E8650A}@media(max-width:560px){.rs-grid{grid-template-columns:1fr}}</style>'
-    page("/perche-noi/", "Prezzo fisso, niente percentuali sul risarcimento | StimaVeloce",
+    page("/perche-noi/", "Stime e perizie a prezzo fisso, niente percentuali | StimaVeloce",
          "Perizie e stime a prezzo fisso pubblicato, senza percentuali sul tuo risarcimento. Confronta i costi con i tuoi numeri.", body, ld=[bld], extra_head=css)
 
 

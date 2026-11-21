@@ -690,6 +690,7 @@ h1,h2,.h1,.h2,.ht{color:#1F5EFF}
 <div id="modal-root"></div>
 <div id="cookie-root"></div>
 
+<script src="/assets/vendor/supabase-2.119.2.js"></script>
 <script>
 (function(){
 'use strict';
@@ -773,7 +774,7 @@ function load(){
   return seed();
 }
 var S = load();
-function save(){ try { localStorage.setItem('sv_demo_v1', JSON.stringify(S)); } catch(e){} }
+function save(){ try { localStorage.setItem('sv_demo_v1', JSON.stringify(S)); } catch(e){} if (typeof sbQueue === 'function') sbQueue(); }
 
 function indice(p){ if (!p.offerta || !p.stima) return null; return Math.max(0, Math.min(100, Math.round(p.offerta / p.stima * 100))); }
 function banda(i){
@@ -1959,10 +1960,85 @@ function vSchemi(){
 
 /* ---------- ACCESSI ---------- */
 var AU = {tab:'accedi', err:'', reset:null, prefill:''};
+/* ---------- Supabase: accessi veri e pratiche salvate online ---------- */
+var SB_URL = 'https://byebnunoygoktyegbofv.supabase.co', SB_KEY = 'sb_publishable_YpnCup4OhY9LR7Gd0Xjwjg_ypkYq3NE';
+var DEMO_EMAILS = ['demo@stimaveloce.it', 'studio@stimaveloce.it', 'perito@stimaveloce.it'];
+var SB = null; try { if (window.supabase && window.supabase.createClient) SB = window.supabase.createClient(SB_URL, SB_KEY, {auth:{persistSession:true, autoRefreshToken:true, detectSessionInUrl:true, flowType:'pkce'}}); } catch(e){ SB = null; }
+var sbUser = null, sbTimer = null, sbWarned = false, sbHash = {};
+function sbOn(em){ return !!SB && DEMO_EMAILS.indexOf((em||'').trim().toLowerCase()) === -1; }
+function sbErr(e){
+  var m = (e && e.message) || String(e || '');
+  if (/invalid login/i.test(m)) return 'Email o password non corrette.';
+  if (/not confirmed/i.test(m)) return 'Conferma prima la tua email: apri il link che ti abbiamo mandato.';
+  if (/already (been )?registered/i.test(m)) return 'Esiste già un accesso con questa email: usa “Accedi”.';
+  if (/rate limit|too many/i.test(m)) return 'Troppi tentativi: riprova tra qualche minuto.';
+  if (/password/i.test(m) && /(short|least|weak)/i.test(m)) return 'Password troppo debole: usa almeno 8 caratteri, con lettere e numeri.';
+  if (/fetch|network/i.test(m)) return 'Connessione non disponibile: controlla internet e riprova.';
+  return 'Operazione non riuscita. Riprova tra poco.';
+}
+function sbRole(user){
+  return SB.from('profiles').select('role').eq('id', user.id).maybeSingle().then(function(r){ return (r.data && r.data.role) || 'cliente'; }, function(){ return 'cliente'; });
+}
+function sbPull(){
+  if (!SB || !sbUser) return Promise.resolve();
+  return SB.from('pratiche').select('id,dati,created_at').order('created_at', {ascending:false}).then(function(r){
+    if (r.error) { console.warn(r.error); return; }
+    var remote = {}, nuove = [];
+    r.data.forEach(function(row){ if (row.dati && row.dati.id) { remote[row.id] = row.dati; sbHash[row.id] = JSON.stringify(row.dati); } });
+    S.pratiche = S.pratiche.map(function(p){ if (remote[p.id]) { var d = remote[p.id]; delete remote[p.id]; return d; } return p; });
+    r.data.forEach(function(row){ if (remote[row.id]) nuove.push(remote[row.id]); });
+    S.pratiche = nuove.concat(S.pratiche);
+    var fromServer = {}; r.data.forEach(function(row){ fromServer[row.id] = 1; });
+    S.pratiche.forEach(function(p){ if (!p.voci) p.voci = []; if (!p.rilievi) p.rilievi = {}; if (p.note == null) p.note = ''; if (!p.messaggi) p.messaggi = []; if (!p.notifiche) p.notifiche = []; if (!p.pagamenti) p.pagamenti = []; if (fromServer[p.id]) sbHash[p.id] = JSON.stringify(p); });
+    try { localStorage.setItem('sv_demo_v1', JSON.stringify(S)); } catch(e){}
+  });
+}
+function sbQueue(){ if (!sbUser || !SB) return; clearTimeout(sbTimer); sbTimer = setTimeout(sbPush, 600); }
+function sbPush(){
+  var me = sbUser; if (!me) return Promise.resolve();
+  var rows = S.pratiche.filter(function(p){
+    if (p.esempio || !p.id) return false;
+    if (me.role === 'cliente' && (p.email||'').toLowerCase() !== me.email) return false;
+    return sbHash[p.id] !== JSON.stringify(p);
+  }).map(function(p){ var r = {id:p.id, email:(p.email||'').toLowerCase(), stato:p.stato || null, dati:JSON.parse(JSON.stringify(p))}; if (me.role === 'cliente') r.owner = me.id; return r; });
+  if (!rows.length) return Promise.resolve();
+  return SB.from('pratiche').upsert(rows, {onConflict:'id'}).then(function(r){
+    if (r.error) { console.warn(r.error); if (!sbWarned) { sbWarned = true; toast('Salvataggio online non riuscito: i dati restano su questo dispositivo'); } return; }
+    sbWarned = false; rows.forEach(function(x){ sbHash[x.id] = JSON.stringify(x.dati); });
+  });
+}
+function sbEnter(user, wantRole){
+  return sbRole(user).then(function(role){
+    if (wantRole && role === 'cliente') { return SB.auth.signOut().then(function(){ throw new Error('__staff'); }); }
+    if (wantRole === 'studio' && role !== 'studio') { return SB.auth.signOut().then(function(){ throw new Error('__staff'); }); }
+    sbUser = {id:user.id, email:(user.email||'').toLowerCase(), role:role};
+    S.session = {role:role, email:sbUser.email, sb:true};
+    logEvt(sbUser.email, role === 'cliente' ? 'Accesso area cliente' : (role === 'perito' ? 'Accesso Scrivania del Perito' : 'Accesso area amministratore'));
+    return sbPull().then(function(){ return sbPush(); }).then(function(){ save(); });
+  });
+}
+function sbBusy(f, on){ var b = f && f.querySelector('button[type=submit]'); if (b) { b.disabled = on; if (on) { b.setAttribute('data-l', b.textContent); b.textContent = 'Attendi…'; } else if (b.getAttribute('data-l')) b.textContent = b.getAttribute('data-l'); } }
+function sbStart(){
+  if (!SB) return;
+  SB.auth.onAuthStateChange(function(ev, sess){
+    if (ev === 'PASSWORD_RECOVERY' && sess) { AU.reset = {step:3, email:sess.user.email}; AU.err = ''; AU.tab = 'accedi'; if (location.hash !== '#area') location.hash = 'area'; else render(false); }
+  });
+  SB.auth.getSession().then(function(r){
+    var sess = r.data && r.data.session;
+    if (/[?&]code=/.test(location.search)) history.replaceState(null, '', location.pathname + location.hash);
+    if (sess && sess.user && (!S.session || S.session.sb || (S.session.email||'').toLowerCase() === (sess.user.email||'').toLowerCase())) {
+      if (AU.reset && AU.reset.step === 3) return;
+      sbEnter(sess.user).then(function(){ render(true); }, function(){});
+    } else if (!sess && S.session && S.session.sb) { S.session = null; save(); render(true); }
+  });
+}
 function findUser(em){ em = (em||'').toLowerCase(); for (var i = 0; i < S.users.length; i++) if (S.users[i].email.toLowerCase() === em) return S.users[i]; return null; }
 function vAccedi(){
   var t = AU.tab, body;
-  if (AU.reset) body = AU.reset.step === 1 ?
+  if (AU.reset && AU.reset.step === 'sent') body = '<div class="stack g16"><h2 style="font-size:22px">Controlla la tua email</h2><p class="muted" style="line-height:1.6">Se esiste un accesso con <strong>'+esc(AU.reset.email)+'</strong>, ti abbiamo mandato un link per scegliere una nuova password. Aprilo da questo dispositivo.</p><button type="button" class="btn btn-o" data-act="x-reset-cancel">Torna all’accesso</button></div>';
+  else if (AU.reset && AU.reset.step === 'conferma') body = '<div class="stack g16"><h2 style="font-size:22px">Conferma la tua email</h2><p class="muted" style="line-height:1.6">Ti abbiamo mandato un link a <strong>'+esc(AU.reset.email)+'</strong>. Aprilo per attivare l’accesso, poi entra con email e password.</p><button type="button" class="btn btn-k" data-act="x-reset-cancel">Ho confermato: accedi</button></div>';
+  else if (AU.reset && AU.reset.step === 3) body = '<form class="stack g16" data-form="x-reset3" novalidate><h2 style="font-size:22px">Scegli la nuova password</h2><p class="muted">Per <strong>'+esc(AU.reset.email)+'</strong></p><label class="f">Nuova password (almeno 8 caratteri)<input class="input" type="password" name="pass" autocomplete="new-password"></label>'+(AU.err?'<p role="alert" style="color:#B91C1C;font-size:14px">'+esc(AU.err)+'</p>':'')+'<button class="btn btn-k" type="submit">Salva e accedi</button></form>';
+  else if (AU.reset) body = AU.reset.step === 1 ?
     '<form class="stack g16" data-form="x-reset1" novalidate><p class="muted">Ti inviamo un codice per impostare una nuova password.</p><label class="f">Email<input class="input" type="email" name="email" value="'+esc(AU.reset.email||'')+'"></label>'+(AU.err?'<p role="alert" style="color:#B91C1C;font-size:14px">'+esc(AU.err)+'</p>':'')+'<button class="btn btn-k" type="submit">Invia il codice</button><button type="button" class="btn btn-link" data-act="x-reset-cancel">Torna all’accesso</button></form>' :
     '<form class="stack g16" data-form="x-reset2" novalidate><label class="f">Codice ricevuto<input class="input" name="code" inputmode="numeric" maxlength="6"></label><label class="f">Nuova password<input class="input" type="password" name="pass" autocomplete="new-password"></label>'+demoBox('Versione di prova: nessuna email viene inviata. Codice: <strong>'+AU.reset.code+'</strong>')+(AU.err?'<p role="alert" style="color:#B91C1C;font-size:14px">'+esc(AU.err)+'</p>':'')+'<button class="btn btn-k" type="submit">Imposta la password</button></form>';
   else if (t === 'accedi') body = '<form class="stack g16" data-form="x-login" novalidate><label class="f">Email<input class="input" type="email" name="email" autocomplete="email" value="'+esc(AU.prefill)+'"></label><label class="f">Password<input class="input" type="password" name="pass" autocomplete="current-password"></label>'+(AU.err?'<p role="alert" style="color:#B91C1C;font-size:14px">'+esc(AU.err)+'</p>':'')+'<button class="btn btn-k btn-lg" type="submit">Accedi</button><button type="button" class="btn btn-link" data-act="x-reset" style="color:var(--g);align-self:flex-start;padding-left:0">Password dimenticata?</button>'+demoBox('Prova: <strong>demo@stimaveloce.it</strong> · password <strong>Demo2026!</strong>. Non usare password reali in questa versione di prova.')+'</form>';
@@ -2161,7 +2237,17 @@ document.addEventListener('submit', function(e){
   var f = e.target, kind = f.getAttribute('data-form'); if (!kind || kind.indexOf('x-') !== 0) return; e.preventDefault();
   var em, pw, u;
   if (kind === 'x-login') {
-    em = f.elements.email.value.trim(); pw = f.elements.pass.value; u = findUser(em);
+    em = f.elements.email.value.trim(); pw = f.elements.pass.value;
+    if (sbOn(em)) {
+      if (!/^\S+@\S+\.\S+$/.test(em) || !pw) { AU.err = 'Inserisci email e password.'; AU.prefill = em; render(true); return; }
+      sbBusy(f, true);
+      SB.auth.signInWithPassword({email:em, password:pw}).then(function(r){
+        if (r.error) throw r.error; return sbEnter(r.data.user);
+      }).then(function(){ AU.err = ''; A.sel = 0; A.tab = 'pratica'; toast('Accesso effettuato'); if (S.session.role !== 'cliente') location.hash = S.session.role === 'perito' ? 'scrivania' : 'amministratore'; render(false); },
+        function(err){ sbBusy(f, false); AU.err = sbErr(err); AU.prefill = em; render(true); });
+      return;
+    }
+    u = findUser(em);
     if (!u || u.h !== hashPw(pw)) { AU.err = 'Email o password non corrette.'; AU.prefill = em; render(true); return; }
     AU.err = ''; S.session = {role:'cliente', email:u.email}; logEvt(u.email, 'Accesso area cliente'); save(); A.sel = 0; A.tab = 'pratica'; toast('Accesso effettuato'); render(false); return;
   }
@@ -2170,12 +2256,37 @@ document.addEventListener('submit', function(e){
     if (!nm || !/^\S+@\S+\.\S+$/.test(em)) { AU.err = 'Inserisci nome ed email validi.'; render(true); return; }
     if (pw.length < 8) { AU.err = 'La password deve avere almeno 8 caratteri.'; render(true); return; }
     if (!f.elements.ok.checked) { AU.err = 'Conferma di aver letto l’informativa privacy.'; render(true); return; }
+    if (sbOn(em)) {
+      sbBusy(f, true);
+      SB.auth.signUp({email:em, password:pw, options:{data:{nome:nm}, emailRedirectTo:location.origin + '/app/#area'}}).then(function(r){
+        if (r.error) throw r.error;
+        if (r.data.session) return sbEnter(r.data.user).then(function(){ AU.err = ''; toast('Accesso creato'); render(false); });
+        if (r.data.user && r.data.user.identities && !r.data.user.identities.length) throw new Error('already registered');
+        AU.err = ''; AU.tab = 'accedi'; AU.prefill = em; AU.reset = {step:'conferma', email:em}; render(true);
+      }).catch(function(err){ sbBusy(f, false); AU.err = sbErr(err); if (/registrat|“Accedi”/.test(AU.err)) { AU.tab = 'accedi'; AU.prefill = em; } render(true); });
+      return;
+    }
     if (findUser(em)) { AU.err = 'Esiste già un accesso con questa email: usa “Accedi”.'; AU.tab = 'accedi'; AU.prefill = em; render(true); return; }
     S.users.push({email:em, nome:nm, h:hashPw(pw)}); S.session = {role:'cliente', email:em}; logEvt(em, 'Nuovo accesso cliente creato'); save(); AU.err = ''; toast('Accesso creato'); render(false); return;
   }
   if (kind === 'x-reset1') {
-    em = f.elements.email.value.trim(); if (!findUser(em)) { AU.err = 'Nessun accesso con questa email.'; AU.reset.email = em; render(true); return; }
+    em = f.elements.email.value.trim();
+    if (sbOn(em)) {
+      if (!/^\S+@\S+\.\S+$/.test(em)) { AU.err = 'Inserisci un’email valida.'; render(true); return; }
+      sbBusy(f, true);
+      SB.auth.resetPasswordForEmail(em, {redirectTo:location.origin + '/app/#area'}).then(function(r){
+        if (r.error) throw r.error; AU.reset = {step:'sent', email:em}; AU.err = ''; render(true);
+      }).catch(function(err){ sbBusy(f, false); AU.err = sbErr(err); render(true); });
+      return;
+    } if (!findUser(em)) { AU.err = 'Nessun accesso con questa email.'; AU.reset.email = em; render(true); return; }
     AU.reset = {step:2, email:em, code:String(Math.floor(100000 + Math.random()*900000))}; AU.err = ''; render(true); return;
+  }
+  if (kind === 'x-reset3') {
+    pw = f.elements.pass.value; if (pw.length < 8) { AU.err = 'Almeno 8 caratteri.'; render(true); return; }
+    sbBusy(f, true);
+    SB.auth.updateUser({password:pw}).then(function(r){ if (r.error) throw r.error; AU.reset = null; AU.err = ''; return sbEnter(r.data.user); })
+      .then(function(){ toast('Password aggiornata'); render(false); }, function(err){ sbBusy(f, false); AU.err = sbErr(err); render(true); });
+    return;
   }
   if (kind === 'x-reset2') {
     if (f.elements.code.value.trim() !== AU.reset.code) { AU.err = 'Codice non corretto.'; render(true); return; }
@@ -2184,6 +2295,13 @@ document.addEventListener('submit', function(e){
   }
   if (kind === 'x-staff') {
     em = f.elements.email.value.trim().toLowerCase(); pw = f.elements.pass.value; var role = f.getAttribute('data-role'), acc = STAFF[em];
+    if (sbOn(em)) {
+      sbBusy(f, true);
+      SB.auth.signInWithPassword({email:em, password:pw}).then(function(r){ if (r.error) throw r.error; return sbEnter(r.data.user, role); })
+        .then(function(){ AU.err = ''; toast('Benvenuto'); render(false); },
+          function(err){ sbBusy(f, false); AU.err = err && err.message === '__staff' ? 'Questo accesso non è abilitato a quest’area.' : sbErr(err); render(true); });
+      return;
+    }
     if (!acc || pw !== STAFF_PASS || (role === 'studio' && acc.role !== 'studio')) { AU.err = 'Email o password non corrette.'; render(true); return; }
     AU.err = ''; S.session = {role:acc.role, email:em}; logEvt(em, 'Accesso '+(acc.role==='perito'?'Scrivania del Perito':'area amministratore')); save(); toast('Benvenuto'); render(false); return;
   }
@@ -2837,7 +2955,7 @@ window.addEventListener('hashchange', function(){ render(false); });
 function addToCart(id){ if (S.cart.indexOf(id) === -1) S.cart.push(id); save(); }
 function creaPratica(servizio, files){
   var P = S.prezzi, items = S.cart.slice();
-  var principale = items.indexOf('perizia') > -1 ? 'perizia' : (items.indexOf('stima') > -1 ? 'stima' : 'video');
+  var principale = ['medico','fabbricati','perizia','stima','video'].filter(function(k){ return items.indexOf(k) > -1; })[0] || 'video';
   var tot = cartTotal();
   var p = {id:uid(), tipo:F.tipo, data:F.data, bene:F.bene, compagnia:F.compagnia, descr:F.descr, servizio:principale, prezzo:SERV(principale).p, pagato:true, stato:'ricevuta',
     offerta: F.offerta ? Number(F.offerta) : 0, stima:0, mandato:false, nome:F.nome, email:F.email, tel:F.tel, creato:oggi(), files:files,
@@ -2939,7 +3057,7 @@ document.addEventListener('click', function(e){
       if (PREV.length) { var rmv = PREV.splice(kk,1)[0]; try { if (rmv.url) URL.revokeObjectURL(rmv.url); } catch(e4){} var ix2 = F.files.indexOf(rmv.name); if (ix2 > -1) F.files.splice(ix2,1); } else F.files.splice(kk,1);
       $('#up-thumbs').innerHTML = upThumbs(); break;
     case 'lg-back': LG = {step:'email', email:LG.email, code:'', err:''}; render(true); break;
-    case 'logout': if (S.session) logEvt(S.session.email, 'Uscita'); S.session = null; AU.tab = 'accedi'; AU.err = ''; W.open = null; B.open = null; save(); LG = {step:'email', email:'', code:'', err:''}; A.sel = 0; toast('Sei uscito'); location.hash = ''; render(false); break;
+    case 'logout': if (S.session) logEvt(S.session.email, 'Uscita'); if (S.session && S.session.sb && SB) { SB.auth.signOut(); sbUser = null; sbHash = {}; } S.session = null; AU.tab = 'accedi'; AU.err = ''; W.open = null; B.open = null; save(); LG = {step:'email', email:'', code:'', err:''}; A.sel = 0; toast('Sei uscito'); location.hash = ''; render(false); break;
     case 'b-tab': B.tab = a.getAttribute('data-t'); render(true); break;
     case 'rv-star': RV.stelle = Number(a.getAttribute('data-n')); document.querySelectorAll('#rv-stars .star-btn').forEach(function(b, k){ b.setAttribute('aria-pressed', k < RV.stelle); var pth = b.querySelector('path'); if (pth) pth.setAttribute('fill', k < RV.stelle ? '#FFB800' : '#E5E5EA'); }); break;
     case 'rv-mod': S.reviews[j].stato = a.getAttribute('data-s'); save(); toast('Recensione '+S.reviews[j].stato); render(true); break;
@@ -3050,6 +3168,7 @@ function toSite(){ var h=location.hash; if (h===''||h==='#'||h==='#home') { loca
 window.addEventListener('hashchange', toSite);
 if (!toSite()) render(false);
 if (!S.cookie) showCookie();
+sbStart();
 })();
 </script>
 </body>
