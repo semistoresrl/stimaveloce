@@ -33,6 +33,8 @@ begin
 end $$;
 drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created after insert on auth.users for each row execute function public.nuovo_utente();
+-- profili anche per chi si era registrato prima di questo script
+insert into public.profiles (id, email) select id, lower(email) from auth.users on conflict (id) do nothing;
 
 -- 2) Pratiche: i dati completi della pratica stanno in "dati" (come nell'app)
 create table if not exists public.pratiche (
