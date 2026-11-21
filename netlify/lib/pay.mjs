@@ -25,7 +25,7 @@ export async function stripe(path, params, method = "POST") {
 export async function sb(path, opt = {}) {
   const r = await fetch(SUPABASE_URL + "/rest/v1/" + path, {
     ...opt,
-    headers: { apikey: sbKey(), authorization: "Bearer " + sbKey(), "content-type": "application/json", prefer: opt.prefer || "return=representation", ...(opt.headers || {}) },
+    headers: { apikey: sbKey(), ...(sbKey().startsWith("sb_") ? {} : { authorization: "Bearer " + sbKey() }), "content-type": "application/json", prefer: opt.prefer || "return=representation", ...(opt.headers || {}) },
   });
   const t = await r.text();
   if (!r.ok) throw new Error("Supabase " + r.status + ": " + t.slice(0, 200));
