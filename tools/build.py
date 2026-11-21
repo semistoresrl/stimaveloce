@@ -527,23 +527,60 @@ def build_stima():
 
 
 def build_simulatore():
-    head, bld = ph([("/", "Home"), ("", "Simulatore di dinamica")], "Simulatore di dinamica", "Disegna l'incidente visto dall'alto: trascina i veicoli, ruotali, segna i punti d'urto e le velocità.", "Gratis")
-    body = head + f'''<section class="sec" style="padding-top:28px"><div class="wrap">
-<div class="note no-print" style="margin-bottom:16px">{ic("info")}<div><b>Schema indicativo, non è una perizia.</b> Serve a spiegare la dinamica: le misure sono approssimate.</div></div>
-<div class="sim card" style="padding:16px">
-<div class="sim-tools no-print">
-<label class="lbl" for="sim-road">Strada</label><select class="in" id="sim-road"><option value="dritta">Rettilineo a due corsie</option><option value="incrocio">Incrocio</option><option value="rotonda">Rotatoria</option><option value="parcheggio">Parcheggio</option></select>
-<div class="sim-add"><button type="button" class="btn btn-s btn-sm" data-add-v="auto">{ic("plus")}Auto</button><button type="button" class="btn btn-s btn-sm" data-add-v="moto">{ic("plus")}Moto</button><button type="button" class="btn btn-s btn-sm" data-add-v="camion">{ic("plus")}Furgone</button><button type="button" class="btn btn-s btn-sm" data-add-v="urto">{ic("plus")}Punto d'urto</button></div>
-<div class="sim-sel" hidden><div class="lbl" data-sel-name>Veicolo</div>
-<div class="row2"><div class="fld"><label class="small" for="sim-lab">Etichetta</label><input class="in" id="sim-lab" maxlength="14"></div><div class="fld"><label class="small" for="sim-kmh">Velocità km/h</label><input class="in" id="sim-kmh" type="number" min="0" max="250" inputmode="numeric"></div></div>
-<div class="sim-add"><button type="button" class="btn btn-s btn-sm" data-rot="-15">↺ Ruota</button><button type="button" class="btn btn-s btn-sm" data-rot="15">↻ Ruota</button><button type="button" class="btn btn-s btn-sm" data-del-v>{ic("x")}Elimina</button></div></div>
-<div class="small muted" data-dist></div>
-<div class="sim-add"><button type="button" class="btn btn-p btn-sm" data-export>{ic("download")}Salva immagine</button><button type="button" class="btn btn-s btn-sm" onclick="window.print()">{ic("printer")}Stampa</button><button type="button" class="btn btn-g btn-sm" data-reset>Ricomincia</button></div>
+    head, bld = ph([("/", "Home"), ("", "Simulatore di dinamica")], "Simulatore di dinamica 2.0",
+                   "Disegna il percorso col dito, premi play e guarda l'incidente accadere: il simulatore trova il punto di contatto, calcola velocità e spazi di frenata e scrive il racconto per te.", "Gratis · nuovo")
+    pres = [("precedenza", "Precedenza all'incrocio"), ("tamponamento", "Tamponamento"), ("svolta", "Svolta a sinistra"), ("corsia", "Cambio corsia"),
+            ("rotatoria", "Rotatoria"), ("parcheggio", "Uscita da parcheggio"), ("pedone", "Pedone sulle strisce")]
+    chips = "".join(f'<button type="button" class="chip" data-preset="{k}">{e(t)}</button>' for k, t in pres)
+    adds = "".join(f'<button type="button" class="btn btn-s btn-sm" data-add-v="{k}">{ic("plus")}{t}</button>' for k, t in
+                   [("auto", "Auto"), ("moto", "Moto"), ("camion", "Furgone"), ("bici", "Bici"), ("pedone", "Pedone"), ("urto", "Segno d'urto")])
+    body = head + f'''<section class="sec" style="padding-top:24px"><div class="wrap">
+<div class="sim2">
+<div class="sim-stage">
+<svg id="sim" viewBox="0 0 800 560" role="img" aria-label="Schema animato della dinamica dell'incidente"></svg>
+<div class="sim-player no-print"><button type="button" class="btn btn-p" data-play>▶ Guarda l'incidente</button>
+<input type="range" min="0" max="1000" value="0" data-time aria-label="Tempo"><span class="sim-t" data-tlabel>0,0 s</span>
+<select class="in sim-speed" data-speed aria-label="Velocità di riproduzione"><option value="1">1×</option><option value="0.5">Lento ½</option><option value="0.25">Moviola ¼</option></select>
+<label class="sim-ck"><input type="checkbox" data-strobe checked> Scia</label></div>
+<p class="small muted sim-hint no-print" data-hint></p>
 </div>
-<div class="sim-stage"><svg id="sim" viewBox="0 0 800 560" role="img" aria-label="Schema della dinamica dell'incidente"></svg><p class="small muted" style="margin:6px 0 0">Scala indicativa: una corsia ≈ 3,5 m. Trascina per spostare, tocca un elemento per modificarlo.</p></div>
-</div></div></section>'''
-    css = '<style>.sim{display:grid;grid-template-columns:300px 1fr;gap:18px}.sim-tools{display:grid;gap:12px;align-content:start}.sim-add{display:flex;flex-wrap:wrap;gap:8px}.sim-stage svg{width:100%;height:auto;border-radius:16px;background:#EEF3FF;touch-action:none;user-select:none}@media(max-width:900px){.sim{grid-template-columns:1fr}.sim-stage{order:-1}}@media print{.sim{display:block}.sim-stage svg{border:1px solid #ccc}}</style>'
-    page("/simulatore/", "Simulatore di dinamica dell'incidente | StimaVeloce", "Disegna la dinamica dell'incidente visto dall'alto: auto, moto e furgoni trascinabili, punti d'urto, distanze e velocità. Salva l'immagine o stampala. Gratis.", body, cur="/simulatore/", ld=[bld], extra_head=css, scripts=f'<script src="/assets/sim.js?v={CSSV}" defer></script>')
+<div class="sim-panel no-print">
+<div class="sp"><div class="sp-h"><span>1</span>Scegli una situazione</div><div class="chips">{chips}</div></div>
+<div class="sp"><div class="sp-h"><span>2</span>Dove è successo</div>
+<div class="row2"><select class="in" id="sim-road" aria-label="Tipo di strada"><option value="incrocio">Incrocio</option><option value="dritta">Rettilineo</option><option value="rotonda">Rotatoria</option><option value="parcheggio">Parcheggio</option><option value="mappa">🗺 Mappa reale</option></select>
+<select class="in" id="sim-surf" aria-label="Fondo stradale"><option value="asciutto">Asfalto asciutto</option><option value="bagnato">Asfalto bagnato</option><option value="ghiaccio">Ghiaccio o neve</option></select></div>
+<div class="sim-map" hidden><div class="row2" style="grid-template-columns:1fr auto"><input class="in" id="sim-addr" placeholder="Via e comune, es. Via Roma, Casoria" autocomplete="street-address"><button type="button" class="btn btn-s btn-sm" data-find>Cerca</button></div>
+<div class="sim-add"><button type="button" class="btn btn-g btn-sm" data-gps>{ic("map-pin")}Usa la mia posizione</button><button type="button" class="btn btn-g btn-sm" data-zoom="1.5" aria-label="Avvicina">{ic("plus")}</button><button type="button" class="btn btn-g btn-sm" data-zoom="0.6667" aria-label="Allontana">{ic("minus")}</button></div>
+<p class="small muted" data-map-msg>La mappa è in scala reale.</p></div></div>
+<div class="sp"><div class="sp-h"><span>3</span>Chi era coinvolto</div><div class="sim-add">{adds}</div>
+<div class="sim-sel card" hidden><div class="lbl" data-sel-name>Veicolo</div>
+<div class="sim-mv"><div class="row2" style="grid-template-columns:1fr 96px"><div class="fld"><label class="small" for="sim-kmhr">Velocità</label><input type="range" id="sim-kmhr" min="0" max="130" step="5"></div><div class="fld"><label class="small" for="sim-kmh">km/h</label><input class="in" id="sim-kmh" type="number" min="0" max="200" inputmode="numeric"></div></div>
+<label class="sim-ck"><input type="checkbox" id="sim-brake"> Ha frenato (reazione 1 s)</label>
+<div class="sim-add"><button type="button" class="btn btn-p btn-sm" data-draw>{ic("square-pen")}Disegna il percorso</button><button type="button" class="btn btn-g btn-sm" data-clear-path>Dritto</button></div>
+<div class="fld"><label class="small" for="sim-lab">Nome</label><input class="in" id="sim-lab" maxlength="14"></div></div>
+<div class="sim-add"><button type="button" class="btn btn-g btn-sm sim-mv" data-rot="-15">↺</button><button type="button" class="btn btn-g btn-sm sim-mv" data-rot="15">↻</button><button type="button" class="btn btn-g btn-sm" data-del-v>{ic("x")}Elimina</button></div></div></div>
+<div class="sim-add"><button type="button" class="btn btn-g btn-sm" data-undo>↶ Annulla</button><button type="button" class="btn btn-g btn-sm" data-reset>Ricomincia</button></div>
+</div>
+</div>
+<div class="card sim-report" style="margin-top:20px;padding:24px"><div class="eyebrow">4 · Il racconto della dinamica</div><h2 style="font-size:26px;margin:6px 0 12px">Ecco cosa è successo</h2>
+<div data-story></div>
+<div class="sim-add no-print" style="margin-top:14px"><button type="button" class="btn btn-p btn-sm" data-copy>Copia il racconto</button><button type="button" class="btn btn-s btn-sm" data-export>{ic("download")}Salva immagine</button><button type="button" class="btn btn-s btn-sm" data-print>{ic("printer")}Stampa</button><button type="button" class="btn btn-s btn-sm" data-share>Condividi link</button><a class="btn btn-g btn-sm" href="/stima/?tipo=auto">Fai valutare il danno</a></div></div>
+<div class="note" style="margin-top:16px">{ic("info")}<div><b>Schema indicativo, non è una perizia.</b> Velocità, tempi e spazi sono calcoli teorici (tempo di reazione 1 s, aderenza standard del fondo): servono a spiegare la dinamica, non ad attribuire responsabilità. La ricostruzione vera la fa un tecnico.</div></div>
+</div></section>'''
+    css = ('<style>.sim2{display:grid;grid-template-columns:1fr 360px;gap:20px;align-items:start}.sim-stage svg{width:100%;height:auto;border-radius:22px;background:#EEF3FF;touch-action:none;user-select:none;-webkit-user-select:none;box-shadow:0 10px 30px rgba(11,27,58,.08)}'
+           '.sim-player{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px}.sim-player input[type=range]{flex:1;min-width:120px;accent-color:#FF7A1A;height:44px}.sim-t{font-weight:800;font-variant-numeric:tabular-nums;min-width:52px}.sim-player .sim-speed{width:auto;flex:none;min-height:44px}'
+           '.sim-ck{display:flex;align-items:center;gap:8px;font-size:15px;min-height:44px}.sim-ck input{width:20px;height:20px;accent-color:#FF7A1A}.sim-hint{margin:8px 2px 0;min-height:1.4em}'
+           '.sim-panel{display:grid;gap:14px}.sp{background:#fff;border:1px solid #E3E7F0;border-radius:20px;padding:16px;display:grid;gap:10px}.sp-h{font-weight:800;color:#0B1B3A;display:flex;align-items:center;gap:10px}.sp-h span{width:26px;height:26px;border-radius:50%;background:#1F5EFF;color:#fff;display:grid;place-items:center;font-size:14px}'
+           '.chips{display:flex;flex-wrap:wrap;gap:8px}.chip{min-height:44px;padding:8px 14px;border-radius:999px;border:1px solid #D3DAE8;background:#F7F8FB;font:inherit;font-size:14px;font-weight:600;color:#0B1B3A;cursor:pointer;transition:.15s}.chip:hover{background:#EEF3FF;border-color:#1F5EFF}'
+           '.sim-add{display:flex;flex-wrap:wrap;gap:8px}.sim-add .btn{min-height:44px}.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.sim-sel{display:grid;gap:10px;padding:14px;border-color:#1F5EFF}.sim-sel input[type=range]{width:100%;accent-color:#1F5EFF;height:36px}'
+           '.sim-text{line-height:1.7;font-size:16px}.shake{animation:svshake .45s}.sim-boom{transform-box:fill-box;transform-origin:center;animation:svboom .5s ease-out}'
+           '@keyframes svshake{0%,100%{transform:none}20%{transform:translate(-6px,2px)}40%{transform:translate(5px,-3px)}60%{transform:translate(-3px,2px)}80%{transform:translate(2px,-1px)}}@keyframes svboom{from{transform:scale(.2);opacity:0}to{transform:scale(1);opacity:1}}'
+           '@media(prefers-reduced-motion:reduce){.shake,.sim-boom{animation:none}}'
+           '@media(max-width:980px){.sim2{grid-template-columns:1fr}}'
+           '@media print{.sim2{display:block}.sim-stage{position:static}.sim-stage svg{border:1px solid #ccc;box-shadow:none}.sim-report{break-inside:avoid;border:0}}</style>')
+    page("/simulatore/", "Simulatore incidente stradale animato, gratis | StimaVeloce",
+         "Ricostruisci l'incidente in un minuto: disegna i percorsi col dito, guarda l'animazione, trova il punto d'urto, calcola spazi di frenata. Anche su mappa reale. Gratis.",
+         body, cur="/simulatore/", ld=[bld], extra_head=css, scripts=f'<script src="/assets/sim.js?v={CSSV}" defer></script>')
 
 
 NOVITA = [
