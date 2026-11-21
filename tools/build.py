@@ -537,7 +537,7 @@ def build_simulatore():
     body = head + f'''<section class="sec" style="padding-top:24px"><div class="wrap">
 <div class="sim2">
 <div class="sim-stage">
-<svg id="sim" viewBox="0 0 800 560" role="img" aria-label="Schema animato della dinamica dell'incidente"></svg>
+<div class="sim-wrap"><svg id="sim" viewBox="0 0 800 560" role="img" aria-label="Schema animato della dinamica dell'incidente"></svg><button type="button" class="sim-fab no-print" data-fab hidden>✍️ Disegna il percorso</button><button type="button" class="sim-fab sim-fab-x no-print" data-fab-x hidden>✕ Annulla disegno</button><div class="sim-banner no-print" data-banner hidden>✍️ Trascina il dito sulla strada, partendo dal veicolo</div></div>
 <div class="sim-player no-print"><button type="button" class="btn btn-p" data-play>▶ Guarda l'incidente</button>
 <input type="range" min="0" max="1000" value="0" data-time aria-label="Tempo"><span class="sim-t" data-tlabel>0,0 s</span>
 <select class="in sim-speed" data-speed aria-label="Velocità di riproduzione"><option value="1">1×</option><option value="0.5">Lento ½</option><option value="0.25">Moviola ¼</option></select>
@@ -573,7 +573,7 @@ def build_simulatore():
            '.sim-panel{display:grid;gap:14px}.sp{background:#fff;border:1px solid #E3E7F0;border-radius:20px;padding:16px;display:grid;gap:10px}.sp-h{font-weight:800;color:#0B1B3A;display:flex;align-items:center;gap:10px}.sp-h span{width:26px;height:26px;border-radius:50%;background:#1F5EFF;color:#fff;display:grid;place-items:center;font-size:14px}'
            '.chips{display:flex;flex-wrap:wrap;gap:8px}.chip{min-height:44px;padding:8px 14px;border-radius:999px;border:1px solid #D3DAE8;background:#F7F8FB;font:inherit;font-size:14px;font-weight:600;color:#0B1B3A;cursor:pointer;transition:.15s}.chip:hover{background:#EEF3FF;border-color:#1F5EFF}'
            '.sim-add{display:flex;flex-wrap:wrap;gap:8px}.sim-add .btn{min-height:44px}.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.sim-sel{display:grid;gap:10px;padding:14px;border-color:#1F5EFF}.sim-sel input[type=range]{width:100%;accent-color:#1F5EFF;height:36px}'
-           '.sim-text{line-height:1.7;font-size:16px}.shake{animation:svshake .45s}.sim-boom{transform-box:fill-box;transform-origin:center;animation:svboom .5s ease-out}'
+           '.sim-text{line-height:1.7;font-size:16px}.sim-wrap{position:relative}.sim-fab{position:absolute;left:10px;top:10px;min-height:44px;padding:8px 16px;border-radius:999px;border:0;background:#0B1B3A;color:#fff;font:inherit;font-weight:700;font-size:15px;box-shadow:0 6px 18px rgba(11,27,58,.25);cursor:pointer}.sim-fab-x{background:#fff;color:#0B1B3A;border:1px solid #D3DAE8}.sim-banner{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);background:#1F5EFF;color:#fff;font-weight:700;padding:10px 16px;border-radius:999px;font-size:14px;white-space:nowrap;pointer-events:none;animation:svpulse 1.4s infinite}@keyframes svpulse{50%{opacity:.75}}.shake{animation:svshake .45s}.sim-boom{transform-box:fill-box;transform-origin:center;animation:svboom .5s ease-out}'
            '@keyframes svshake{0%,100%{transform:none}20%{transform:translate(-6px,2px)}40%{transform:translate(5px,-3px)}60%{transform:translate(-3px,2px)}80%{transform:translate(2px,-1px)}}@keyframes svboom{from{transform:scale(.2);opacity:0}to{transform:scale(1);opacity:1}}'
            '@media(prefers-reduced-motion:reduce){.shake,.sim-boom{animation:none}}'
            '@media(max-width:980px){.sim2{grid-template-columns:1fr}}'

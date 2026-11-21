@@ -217,8 +217,15 @@
     }
     $("#sim-road").value = S.road; $("#sim-surf").value = S.surf;
     $(".sim-map").hidden = S.road !== "mappa";
-    hint(); draw(); story(); save();
+    hint(); draw(); story(); save(); fab();
   }
+  function fab() {
+    var b = $("[data-fab]"), it = byId(sel), x = $("[data-fab-x]");
+    if (mode === "path") { b.hidden = true; x.hidden = false; $("[data-banner]").hidden = false; return; }
+    x.hidden = true; $("[data-banner]").hidden = true;
+    b.hidden = !it || it.t === "urto"; if (it) b.textContent = "✍️ Disegna il percorso di " + it.lab;
+  }
+  function startPath() { if (!sel) return; stop(); T = 0; mode = "path"; hint(); draw(); fab(); }
   function hint() {
     var it = byId(sel);
     var h = mode === "path" ? "Ora trascina il dito sulla strada partendo da " + (it ? it.lab : "il veicolo") + ": disegna dove andava." :
@@ -294,9 +301,13 @@
   function end() {
     if (!drag) return;
     if (drag.k === "path") { var it = drag.it; if (it.path.length < 3) it.path = null; else if (!(+it.kmh)) it.kmh = it.t === "pedone" ? 5 : 30; mode = "move"; }
+    if (drag.k === "path" && !drag.it.path) $("[data-hint]").textContent = "Percorso troppo corto: tocca «Disegna» e trascina il dito più a lungo.";
     drag = null; update();
   }
-  svg.addEventListener("pointerup", end); svg.addEventListener("pointercancel", end);
+  svg.addEventListener("pointerup", end);
+  svg.addEventListener("pointercancel", function () { if (drag && drag.k === "path" && drag.it.path && drag.it.path.length >= 3) { end(); return; } if (drag && drag.k === "path") return; end(); });
+  svg.addEventListener("touchstart", function (e) { if (mode === "path" || e.target.closest("[data-id],[data-rot-h]") || S.road === "mappa") e.preventDefault(); }, { passive: false });
+  svg.addEventListener("touchmove", function (e) { if (drag || mode === "path") e.preventDefault(); }, { passive: false });
 
   /* ---------- mappa reale ---------- */
   function setPxm() { var m = S.map; S.pxm = m.k / (156543.03392 * Math.cos(m.lat * Math.PI / 180) / Math.pow(2, m.z)); }
@@ -350,7 +361,9 @@
   $("#sim-kmhr").addEventListener("pointerdown", snap);
   $("#sim-brake").addEventListener("change", function (e) { snap(); setSel(function (it) { it.brake = e.target.checked; }); });
   $$("[data-rot]").forEach(function (b) { b.addEventListener("click", function () { snap(); setSel(function (it) { it.r = (it.r + (+b.getAttribute("data-rot"))) % 360; it.path = null; }); }); });
-  $("[data-draw]").addEventListener("click", function () { if (!sel) return; stop(); T = 0; mode = "path"; hint(); draw(); svg.scrollIntoView({ behavior: "smooth", block: "center" }); });
+  $("[data-draw]").addEventListener("click", function () { startPath(); svg.scrollIntoView({ behavior: "smooth", block: "center" }); });
+  $("[data-fab]").addEventListener("click", startPath);
+  $("[data-fab-x]").addEventListener("click", function () { mode = "move"; update(true); });
   $("[data-clear-path]").addEventListener("click", function () { snap(); setSel(function (it) { it.path = null; }); });
   $("[data-del-v]").addEventListener("click", function () { snap(); S.items = S.items.filter(function (i) { return i.id !== sel; }); sel = null; update(); });
   $("[data-play]").addEventListener("click", function () { playing ? stop() : play(); });
