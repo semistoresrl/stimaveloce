@@ -55,7 +55,7 @@ PREZZI = [
             "Indicazione della documentazione da presentare alla compagnia",
         ],
         "esclude": [
-            "Sopralluogo fuori dal territorio servito (preventivo a parte)",
+            "Sopralluogo sul posto (preventivo a parte)",
             "Assistenza legale e attività giudiziale",
             "Spese per accertamenti di terzi (analisi di laboratorio, ditte specializzate)",
         ],
