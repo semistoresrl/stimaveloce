@@ -3,4 +3,4 @@ Allow: /
 Disallow: /app/
 Disallow: /contatti/grazie/
 
-Sitemap: https://stimaveloce.netlify.app/sitemap.xml
+Sitemap: https://stimaveloce.it/sitemap.xml

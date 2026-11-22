@@ -3,7 +3,7 @@
 lo script build.py rigenera tutte le pagine."""
 
 SITE = {
-    "url": "https://stimaveloce.netlify.app",
+    "url": "https://stimaveloce.it",
     "name": "StimaVeloce",
     "studio": "StimaVeloce",
     "city": "Online in tutta Italia",
