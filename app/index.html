@@ -1577,7 +1577,7 @@ function vAccedi(){
       '<label class="f">Email<input class="input" type="email" name="email" autocomplete="email" value="'+esc(LG.email)+'" required></label>'+
       (LG.err?'<p role="alert" style="color:#B91C1C;font-size:14px">'+esc(LG.err)+'</p>':'')+
       '<button class="btn btn-g btn-lg" type="submit">Inviami il codice</button>'+
-      demoBox('Prova: usa <strong>demo@stimaveloce.it</strong> per vedere una pratica di esempio, oppure l’email che hai usato al pagamento.')+
+      
       '<p class="small" style="text-align:center">Non hai ancora una pratica? <a href="#analizza">Inizia l’analisi gratuita</a></p>'+
     '</form>';
   else body =
@@ -1607,7 +1607,7 @@ function vStudio(){
       '<label class="f" style="color:#fff">Password<input class="input" type="password" name="pass" autocomplete="current-password" required></label>'+
       (SL.err?'<p role="alert" style="color:#FCA5A5;font-size:14px">'+esc(SL.err)+'</p>':'')+
       '<button class="btn btn-l btn-lg" type="submit">Accedi</button>'+
-      demoBox('Credenziali di prova: <strong>'+STUDIO_DEMO.email+'</strong> · password <strong>'+STUDIO_DEMO.pass+'</strong>. Nella versione definitiva: account personali e verifica in due passaggi.')+
+      
     '</form>');
   return vStudioPanel();
 }
@@ -2045,11 +2045,11 @@ function vAccedi(){
   else if (AU.reset) body = AU.reset.step === 1 ?
     '<form class="stack g16" data-form="x-reset1" novalidate><p class="muted">Ti inviamo un codice per impostare una nuova password.</p><label class="f">Email<input class="input" type="email" name="email" value="'+esc(AU.reset.email||'')+'"></label>'+(AU.err?'<p role="alert" style="color:#B91C1C;font-size:14px">'+esc(AU.err)+'</p>':'')+'<button class="btn btn-k" type="submit">Invia il codice</button><button type="button" class="btn btn-link" data-act="x-reset-cancel">Torna all’accesso</button></form>' :
     '<form class="stack g16" data-form="x-reset2" novalidate><label class="f">Codice ricevuto<input class="input" name="code" inputmode="numeric" maxlength="6"></label><label class="f">Nuova password<input class="input" type="password" name="pass" autocomplete="new-password"></label>'+demoBox('Versione di prova: nessuna email viene inviata. Codice: <strong>'+AU.reset.code+'</strong>')+(AU.err?'<p role="alert" style="color:#B91C1C;font-size:14px">'+esc(AU.err)+'</p>':'')+'<button class="btn btn-k" type="submit">Imposta la password</button></form>';
-  else if (t === 'accedi') body = '<form class="stack g16" data-form="x-login" novalidate><label class="f">Email<input class="input" type="email" name="email" autocomplete="email" value="'+esc(AU.prefill)+'"></label><label class="f">Password<input class="input" type="password" name="pass" autocomplete="current-password"></label>'+(AU.err?'<p role="alert" style="color:#B91C1C;font-size:14px">'+esc(AU.err)+'</p>':'')+'<button class="btn btn-k btn-lg" type="submit">Accedi</button><button type="button" class="btn btn-link" data-act="x-reset" style="color:var(--g);align-self:flex-start;padding-left:0">Password dimenticata?</button>'+demoBox('Prova: <strong>demo@stimaveloce.it</strong> · password <strong>Demo2026!</strong>. Non usare password reali in questa versione di prova.')+'</form>';
+  else if (t === 'accedi') body = '<form class="stack g16" data-form="x-login" novalidate><label class="f">Email<input class="input" type="email" name="email" autocomplete="email" value="'+esc(AU.prefill)+'"></label><label class="f">Password<input class="input" type="password" name="pass" autocomplete="current-password"></label>'+(AU.err?'<p role="alert" style="color:#B91C1C;font-size:14px">'+esc(AU.err)+'</p>':'')+'<button class="btn btn-k btn-lg" type="submit">Accedi</button><button type="button" class="btn btn-link" data-act="x-reset" style="color:var(--g);align-self:flex-start;padding-left:0">Password dimenticata?</button>'+'</form>';
   else body = '<form class="stack g16" data-form="x-register" novalidate><label class="f">Nome e cognome<input class="input" name="nome" autocomplete="name" value="'+esc(PF.nome||'')+'"></label><label class="f">Email<input class="input" type="email" name="email" autocomplete="email" value="'+esc(AU.prefill)+'"></label><label class="f">Password (almeno 8 caratteri)<input class="input" type="password" name="pass" autocomplete="new-password"></label><label class="check"><input type="checkbox" name="ok">Ho letto l’<a href="#privacy">informativa privacy</a>.</label>'+(AU.err?'<p role="alert" style="color:#B91C1C;font-size:14px">'+esc(AU.err)+'</p>':'')+'<button class="btn btn-k btn-lg" type="submit">Crea l’accesso</button><p class="small">Usa la stessa email indicata nella richiesta: vedrai subito la tua pratica.</p></form>';
   return '<section><div class="wrap" style="max-width:520px;padding-top:64px;padding-bottom:96px"><div class="card stack g20" style="padding:36px"><div class="stack g8"><h1 class="ht" style="font-size:34px">Area cliente</h1><p class="muted" style="line-height:1.6">Accedi con la stessa email indicata nella richiesta per controllare stato, timeline e documenti della pratica.</p></div>'+
     (AU.reset?'':'<div class="tabs" role="tablist"><button type="button" role="tab" class="tab" data-act="x-au-tab" data-t="accedi" aria-selected="'+(t==='accedi')+'">Accedi</button><button type="button" role="tab" class="tab" data-act="x-au-tab" data-t="registrati" aria-selected="'+(t==='registrati')+'">Registrati</button></div>')+
-    body+'<p class="small">Accesso protetto. I dati della pratica sono visibili solo all’indirizzo email associato e allo Studio.</p></div></div></section>';
+    body+'<p class="small">Accesso protetto. I dati della pratica sono visibili solo all’indirizzo email associato e al nostro staff.</p></div></div></section>';
 }
 function myLeads(){ if (!S.session || S.session.role !== 'cliente') return []; var em = S.session.email.toLowerCase(); return S.leads.filter(function(l){ return (l.email||'').toLowerCase() === em; }); }
 function vArea(){
@@ -2066,7 +2066,7 @@ function staffLogin(role){
   return '<section><div class="wrap" style="max-width:520px;padding-top:64px;padding-bottom:96px"><form class="card stack g16" data-form="x-staff" data-role="'+role+'" novalidate style="padding:36px"><span style="width:44px;height:44px;border-radius:12px;background:var(--forest);color:var(--lime);display:flex;align-items:center;justify-content:center;font-weight:800">'+(role==='perito'?'P':'S')+'</span><span class="eyebrow">StimaVeloce · '+title+'</span><h1 class="ht" style="font-size:32px">Accesso riservato</h1><p class="muted" style="line-height:1.6">'+(role==='perito'?'Entra per consultare le pratiche assegnate, i rilievi e redigere le perizie.':'Entra con l’account autorizzato dello Studio per consultare richieste, allegati e report.')+'</p>'+
     '<label class="f">Email<input class="input" type="email" name="email" autocomplete="username"></label><label class="f">Password<input class="input" type="password" name="pass" autocomplete="current-password"></label>'+(AU.err?'<p role="alert" style="color:#B91C1C;font-size:14px">'+esc(AU.err)+'</p>':'')+
     '<button class="btn btn-k btn-lg" type="submit">Accedi</button><button type="button" class="btn btn-link" data-act="x-staff-forgot" style="color:var(--g);align-self:flex-start;padding-left:0">Password dimenticata?</button>'+
-    demoBox('Prova: <strong>'+em+'</strong> · password <strong>'+STAFF_PASS+'</strong>. Nella versione definitiva: account personali e verifica in due passaggi.')+'</form></div></section>';
+    '</form></div></section>';
 }
 
 /* ---------- AMMINISTRATORE ---------- */
