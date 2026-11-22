@@ -33,7 +33,7 @@ LOGO_SVG = ('<svg viewBox="0 0 34 38" aria-hidden="true"><path d="M17 1.5 31.5 6
 
 
 def logo(href="/"):
-    return f'<a class="logo" href="{href}" aria-label="StimaVeloce, pagina iniziale">{LOGO_SVG}<b>StimaVeloce<i>.</i></b></a>'
+    return f'<a class="logo" href="{href}" aria-label="StimaVeloce, pagina iniziale">{LOGO_SVG}<b>StimaVeloce<i>.it</i></b></a>'
 
 
 MENU = [("/aiuto/incidenti-stradali/", "car", "Auto e Moto", "Incidenti, carrozzeria, moto e veicoli commerciali"),
